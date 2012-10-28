@@ -28,16 +28,16 @@ interface Factory(FactoryId Id)
 
 
 
-    ShipmentTransferredToCargoBay!(InventoryShipment shipment)
+    ShipmentReceivedInCargoBay!(InventoryShipment shipment)
         explicit Describe.Message(this)
-    TransferShipmentToCargoBay?(string shipmentName, CarPart[] parts)
+    ReceiveShipmentInCargoBay?(string shipmentName, CarPart[] parts)
         explicit Describe.Message(this)
 
 
 
-    UnloadedFromCargoBay!(employee, InventoryShipment[] inventoryShipments)
+    ShipmentUnpackedInCargoBay!(employee, InventoryShipment[] inventoryShipments)
         explicit Describe.Message(this)
-    UnloadShipmentFromCargoBay?(employee)
+    UnpackAndInventoryShipmentInCargoBay?(employee)
         explicit "Unload the cargo '{employeeName}'"
 
 

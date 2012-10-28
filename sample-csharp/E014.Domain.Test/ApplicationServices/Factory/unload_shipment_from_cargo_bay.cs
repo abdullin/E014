@@ -11,10 +11,10 @@ namespace E014.Domain.ApplicationServices.Factory
         {
             Given(new FactoryOpened(Id),
                             new EmployeeAssignedToFactory(Id, "fry"),
-                            new ShipmentTransferredToCargoBay(Id, new InventoryShipment("ship-1", new[] { new CarPart("chassis", 1), })));
+                            new ShipmentReceivedInCargoBay(Id, new InventoryShipment("ship-1", new[] { new CarPart("chassis", 1), })));
 
-            When(new UnloadShipmentFromCargoBay(Id, "fry"));
-            Expect(new UnloadedFromCargoBay(Id, "fry", new[] { new InventoryShipment("ship-1", new[] { new CarPart("chassis", 1), }) }));
+            When(new UnpackAndInventoryShipmentInCargoBay(Id, "fry"));
+            Expect(new ShipmentUnpackedInCargoBay(Id, "fry", new[] { new InventoryShipment("ship-1", new[] { new CarPart("chassis", 1), }) }));
         }
 
         [Test]
@@ -22,8 +22,8 @@ namespace E014.Domain.ApplicationServices.Factory
         {
             Given(new FactoryOpened(Id),
                   new EmployeeAssignedToFactory(Id, "ben"),
-                  new ShipmentTransferredToCargoBay(Id, new InventoryShipment("ship-1", new[] { new CarPart("chassis", 1), })));
-            When(new UnloadShipmentFromCargoBay(Id, "fry"));
+                  new ShipmentReceivedInCargoBay(Id, new InventoryShipment("ship-1", new[] { new CarPart("chassis", 1), })));
+            When(new UnpackAndInventoryShipmentInCargoBay(Id, "fry"));
             Expect("unknown-employee");
         }
 
@@ -38,9 +38,9 @@ namespace E014.Domain.ApplicationServices.Factory
 
             Given(new FactoryOpened(Id),
                   new EmployeeAssignedToFactory(Id, "fry"),
-                  new ShipmentTransferredToCargoBay(Id, shipment),
-                  new UnloadedFromCargoBay(Id, "fry", new[] { shipment, }));
-            When(new UnloadShipmentFromCargoBay(Id, "fry"));
+                  new ShipmentReceivedInCargoBay(Id, shipment),
+                  new ShipmentUnpackedInCargoBay(Id, "fry", new[] { shipment, }));
+            When(new UnpackAndInventoryShipmentInCargoBay(Id, "fry"));
             Expect("empty-InventoryShipments");
         }
 
@@ -49,14 +49,14 @@ namespace E014.Domain.ApplicationServices.Factory
         {
             Given(new FactoryOpened(Id),
                   new EmployeeAssignedToFactory(Id, "fry"));
-            When(new UnloadShipmentFromCargoBay(Id, "fry"));
+            When(new UnpackAndInventoryShipmentInCargoBay(Id, "fry"));
             Expect("empty-InventoryShipments");
         }
 
         [Test]
         public void factory_not_open()
         {
-            When(new UnloadShipmentFromCargoBay(Id, "fry"));
+            When(new UnpackAndInventoryShipmentInCargoBay(Id, "fry"));
             Expect("factory-is-not-open");
         }
     }

@@ -49,7 +49,7 @@
     <Compile Include="CompareObjects.cs" />
     <Compile Include="DomainServices\TestBlueprintLibrary.cs" />
     <Compile Include="ApplicationServices\Factory\factory_spec.cs" />
-    <Compile Include="ApplicationServices\Factory\produce_car.cs" />
+    <Compile Include="ApplicationServices\Factory\produce_a_car.cs" />
     <Compile Include="ApplicationServices\application_service_spec.cs" />
     <Compile Include="ApplicationServices\Factory\transfer_shipment_to_cargo_bay.cs" />
     <Compile Include="ApplicationServices\Factory\unload_shipment_from_cargo_bay.cs" />

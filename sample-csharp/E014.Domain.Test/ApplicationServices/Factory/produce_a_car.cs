@@ -3,7 +3,7 @@ using NUnit.Framework;
 // ReSharper disable InconsistentNaming
 namespace E014.Domain.ApplicationServices.Factory
 {
-    public class produce_car : factory_application_service_spec
+    public class produce_a_car : factory_application_service_spec
     {
         [Test]
         public void fry_not_assigned_to_factory()
