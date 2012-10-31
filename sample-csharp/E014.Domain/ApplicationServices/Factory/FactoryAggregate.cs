@@ -46,7 +46,7 @@ namespace E014.ApplicationServices.Factory
             {
                 // yes, this is a really weird check, but this factory has really strict rules.
                 // manager should've remembered that
-                throw DomainError.Named("more than 1 person", ":> the name of '{0}' only one employee can have", employeeName);
+                throw DomainError.Named("employee-name-already-taken", ":> the name of '{0}' only one employee can have", employeeName);
             }
 
             if (employeeName == "bender")
@@ -68,19 +68,21 @@ namespace E014.ApplicationServices.Factory
             if (shipment.Cargo.Length == 0)
                 throw DomainError.Named("empty-InventoryShipments", ":> Empty InventoryShipments are not accepted!");
 
-            if (_aggregateState.ShipmentsWaitingToBeUnpacked.Count > 2)
+            if (_aggregateState.ShipmentsWaitingToBeUnpacked.Count >= 2)
                 throw DomainError.Named("more-than-two-InventoryShipments", ":> More than two InventoryShipments can't fit into this cargo bay :(");
 
             DoRealWork("opening cargo bay doors");
 
             RecordAndRealizeThat(new ShipmentReceivedInCargoBay(_aggregateState.Id, shipment));
 
-            var totalCountOfParts = shipment.Cargo.Sum(p => p.Quantity);
-            if (totalCountOfParts > 10)
-            {
-                RecordAndRealizeThat(new CurseWordUttered(_aggregateState.Id, "Boltov tebe v korobky peredach",
-                                           "awe in the face of the amount of shipment delivered"));
-            }
+            // TODO:  This is a Test from before that I need to add back
+
+            //var totalCountOfParts = shipment.Cargo.Sum(p => p.Quantity);
+            //if (totalCountOfParts > 10)
+            //{
+            //    RecordAndRealizeThat(new CurseWordUttered(_aggregateState.Id, "Boltov tebe v korobky peredach",
+            //                               "awe in the face of the amount of shipment delivered"));
+            //}
         }
 
         public void UnpackAndInventoryShipmentInCargoBay(string employeeName)
@@ -89,7 +91,11 @@ namespace E014.ApplicationServices.Factory
 
             if (_aggregateState.ListOfEmployeeNames.Count == 0)
                 throw DomainError.Named("unknown-employee", ":> There has to be somebody at factory in order to accept shipment");
+
+            if (!_aggregateState.ListOfEmployeeNames.Contains(employeeName))
+                throw DomainError.Named("unknown-employee", ":> There has to be somebody at factory in order to accept shipment");
             
+
             // Rule: An Employee is only allowed to Unpack ONCE a Day
             if (_aggregateState.EmployeesWhoHaveUnpackedCargoBayToday.Contains(employeeName))
             {
@@ -119,6 +125,10 @@ namespace E014.ApplicationServices.Factory
 
             if (!_aggregateState.ListOfEmployeeNames.Contains(employeeName))
                 throw DomainError.Named("unknown-employee", ":> '{0}' not assigned to factory", employeeName);
+
+            if (_aggregateState.EmployeesWhoHaveProducedACarToday.Contains(employeeName))
+                throw DomainError.Named("employee-already-produced-car-today", ":> '{0}' not assigned to factory", employeeName);
+
 
             var design = carBlueprintLibrary.TryToGetBlueprintForModelOrNull(carModel);
 

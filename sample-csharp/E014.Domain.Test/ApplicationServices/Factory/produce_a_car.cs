@@ -5,8 +5,9 @@ namespace E014.Domain.ApplicationServices.Factory
 {
     public class produce_a_car : factory_application_service_spec
     {
+
         [Test]
-        public void fry_not_assigned_to_factory()
+        public void assigning_employee_not_in_factory_is_an_error()
         {
             Given(new FactoryOpened(FactoryId.ForTest));
             When(new ProduceACar(FactoryId.ForTest, "fry", "Ford", Library));
@@ -15,7 +16,7 @@ namespace E014.Domain.ApplicationServices.Factory
         }
 
         [Test]
-        public void part_not_found()
+        public void missing_required_car_part_is_an_error()
         {
             Given(
                      new FactoryOpened(FactoryId.ForTest),
@@ -23,11 +24,11 @@ namespace E014.Domain.ApplicationServices.Factory
                      new EmployeeAssignedToFactory(FactoryId.ForTest, "fry")
                 );
             When(new ProduceACar(FactoryId.ForTest, "fry", "Ford", Library));
-            Expect("part-not-found");
+            Expect("required-part-not-found");
         }
 
         [Test]
-        public void cart_model_not_found()
+        public void car_model_not_in_blueprint_library_is_an_error()
         {
             Given(
                      new FactoryOpened(FactoryId.ForTest),
@@ -38,11 +39,11 @@ namespace E014.Domain.ApplicationServices.Factory
         }
 
         [Test]
-        public void produced_car()
+        public void car_produced_announcment_received()
         {
             Given(
                     Library.RecordBlueprint("death star", new CarPart("magic box", 10)),
-                    Library.RecordBlueprint("Ford", new CarPart("chassis", 1)),
+                    Library.RecordBlueprint("Ford", new CarPart("chassis", 1), new CarPart("wheels", 4), new CarPart("engine", 1)),
                     new FactoryOpened(FactoryId.ForTest),
                     new EmployeeAssignedToFactory(FactoryId.ForTest, "fry"),
                     new ShipmentUnpackedInCargoBay(FactoryId.ForTest, "fry", new[] { new InventoryShipment("ship-1", new[] { new CarPart("chassis", 1), new CarPart("wheels", 4), new CarPart("engine", 1) }) })
@@ -53,8 +54,27 @@ namespace E014.Domain.ApplicationServices.Factory
             Expect(new CarProduced(FactoryId.ForTest,"fry", "Ford", new[] { new CarPart("chassis", 1), new CarPart("wheels", 4), new CarPart("engine", 1) }));
         }
 
+
         [Test]
-        public void factory_not_open()
+        public void an_employee_who_has_already_produced_a_car_today_cant_be_assigned()
+        {
+            Given(
+                    Library.RecordBlueprint("Ford", new CarPart("chassis", 1), new CarPart("wheels", 4), new CarPart("engine", 1)),
+                    new FactoryOpened(FactoryId.ForTest),
+                    new EmployeeAssignedToFactory(FactoryId.ForTest, "fry"),
+                    new ShipmentUnpackedInCargoBay(FactoryId.ForTest, "fry", new[] { new InventoryShipment("ship-1", new[] { new CarPart("chassis", 1), new CarPart("wheels", 4), new CarPart("engine", 1) }) }),
+                    new CarProduced(FactoryId.ForTest, "fry", "Ford", new[] { new CarPart("chassis", 1), new CarPart("wheels", 4), new CarPart("engine", 1) }),
+                    new ShipmentUnpackedInCargoBay(FactoryId.ForTest, "fry", new[] { new InventoryShipment("ship-2", new[] { new CarPart("chassis", 1), new CarPart("wheels", 4), new CarPart("engine", 1) }) })
+                );
+
+            When(new ProduceACar(FactoryId.ForTest, "fry", "Ford", Library));
+
+            Expect("employee-already-produced-car-today");
+        }
+
+
+        [Test]
+        public void when_factory_not_open_is_an_error()
         {
             When(new ProduceACar(FactoryId.ForTest, "fry", "Ford", Library));
             Expect("factory-is-not-open");
