@@ -214,15 +214,13 @@ namespace E014.Contracts
         [DataMember(Order = 1)] public FactoryId Id { get; private set; }
         [DataMember(Order = 2)] public string EmployeeName { get; private set; }
         [DataMember(Order = 3)] public string CarModel { get; private set; }
-        [DataMember(Order = 4)] public ICarBlueprintLibrary CarBlueprintLibrary { get; private set; }
         
         ProduceACar () {}
-        public ProduceACar (FactoryId id, string employeeName, string carModel, ICarBlueprintLibrary carBlueprintLibrary)
+        public ProduceACar (FactoryId id, string employeeName, string carModel)
         {
             Id = id;
             EmployeeName = employeeName;
             CarModel = carModel;
-            CarBlueprintLibrary = carBlueprintLibrary;
         }
         
         public override string ToString()

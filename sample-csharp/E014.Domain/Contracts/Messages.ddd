@@ -166,7 +166,7 @@ interface Factory(FactoryId Id)
         explicit Describe.Message(this)
     
 
-    ProduceACar?(employee, string carModel, ICarBlueprintLibrary carBlueprintLibrary)
+    ProduceACar?(employee, string carModel)
         explicit "Employee '{employee}' produce car:{carModel}"
     CarProduced!(employee, string carModel, CarPart[] parts)
         explicit Describe.Message(this)
