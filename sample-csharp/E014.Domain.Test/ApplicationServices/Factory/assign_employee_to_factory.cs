@@ -1,6 +1,6 @@
 ﻿using E014.Contracts;
 using NUnit.Framework;
-
+// ReSharper disable InconsistentNaming
 namespace E014.Domain.ApplicationServices.Factory
 {
     public class assign_employee_to_factory : factory_application_service_spec

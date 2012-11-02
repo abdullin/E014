@@ -1,9 +1,8 @@
 ﻿using E014.Contracts;
 using NUnit.Framework;
-
+// ReSharper disable InconsistentNaming
 namespace E014.Domain.ApplicationServices.Factory
 {
-// ReSharper disable InconsistentNaming
     public class unpack_shipment_in_cargo_bay : factory_application_service_spec
     {
         static readonly FactoryId Id = new FactoryId(25);
@@ -28,10 +27,6 @@ namespace E014.Domain.ApplicationServices.Factory
             When(new UnpackAndInventoryShipmentInCargoBay(Id, "fry"));
             Expect("unknown-employee");
         }
-
-        
-
-     
 
         [Test]
         public void an_employee_asked_to_unpack_more_than_once_a_day_is_not_allowed()
