@@ -1,8 +1,11 @@
 ﻿using E014.Contracts;
 using NUnit.Framework;
+
 // ReSharper disable InconsistentNaming
 namespace E014.Domain.ApplicationServices.Factory
 {
+    
+
     public class unpack_shipment_in_cargo_bay : factory_application_service_spec
     {
         static readonly FactoryId Id = new FactoryId(25);
@@ -10,12 +13,14 @@ namespace E014.Domain.ApplicationServices.Factory
         [Test]
         public void an_unpacked_announcement_is_made_with_correct_inventory_list()
         {
+            var shipment = NewShipment("ship-1", "chassis");
+
             Given(new FactoryOpened(Id),
                             new EmployeeAssignedToFactory(Id, "fry"),
-                            new ShipmentReceivedInCargoBay(Id, new InventoryShipment("ship-1", new[] { new CarPart("chassis", 1), })));
+                            new ShipmentReceivedInCargoBay(Id, shipment));
 
             When(new UnpackAndInventoryShipmentInCargoBay(Id, "fry"));
-            Expect(new ShipmentUnpackedInCargoBay(Id, "fry", new[] { new InventoryShipment("ship-1", new[] { new CarPart("chassis", 1), }) }));
+            Expect(new ShipmentUnpackedInCargoBay(Id, "fry", new[] { shipment }));
         }
 
         [Test]
@@ -23,7 +28,7 @@ namespace E014.Domain.ApplicationServices.Factory
         {
             Given(new FactoryOpened(Id),
                   new EmployeeAssignedToFactory(Id, "ben"),
-                  new ShipmentReceivedInCargoBay(Id, new InventoryShipment("ship-1", new[] { new CarPart("chassis", 1), })));
+                  new ShipmentReceivedInCargoBay(Id, NewShipment("ship-1", "chassis")));
             When(new UnpackAndInventoryShipmentInCargoBay(Id, "fry"));
             Expect("unknown-employee");
         }
@@ -31,12 +36,12 @@ namespace E014.Domain.ApplicationServices.Factory
         [Test]
         public void an_employee_asked_to_unpack_more_than_once_a_day_is_not_allowed()
         {
-            var shipment = new InventoryShipment("ship-1", new[] {new CarPart("chassis", 1),});
+            var shipment = NewShipment("ship-1", "chassis");
 
             Given(new FactoryOpened(Id),
                   new EmployeeAssignedToFactory(Id, "fry"),
                   new ShipmentReceivedInCargoBay(Id, shipment),
-                  new ShipmentUnpackedInCargoBay(Id, "fry", new[] { shipment, }));
+                  new ShipmentUnpackedInCargoBay(Id, "fry", new[] { shipment }));
             When(new UnpackAndInventoryShipmentInCargoBay(Id, "fry"));
             Expect("employee-already-unpacked-cargo");
         }

@@ -12,8 +12,8 @@ namespace E014.Domain.ApplicationServices.Factory
         {
             Given(new FactoryOpened(Id), 
                     new EmployeeAssignedToFactory(Id, "yoda"));
-            When(new ReceiveShipmentInCargoBay(Id, "shipment-777", new[] { new CarPart("engine", 1) }));
-            Expect(new ShipmentReceivedInCargoBay(Id, new InventoryShipment("shipment-777", new[] { new CarPart("engine", 1) })));
+            When(new ReceiveShipmentInCargoBay(Id, "shipment-777", NewCarPartList("engine")));
+            Expect(new ShipmentReceivedInCargoBay(Id, NewShipment("shipment-777","engine")));
         }
 
 
@@ -30,7 +30,7 @@ namespace E014.Domain.ApplicationServices.Factory
         public void an_empty_shipment_that_comes_to_factory_with_no_employees_is_not_received()
         {
             Given(new FactoryOpened(Id));
-            When(new ReceiveShipmentInCargoBay(Id, "some shipment", new[] { new CarPart("chassis", 1) }));
+            When(new ReceiveShipmentInCargoBay(Id, "some shipment", NewCarPartList("chassis")));
             Expect("unknown-employee");
         }
         [Test]
@@ -39,11 +39,11 @@ namespace E014.Domain.ApplicationServices.Factory
             Given(
                 new FactoryOpened(Id),
                     new EmployeeAssignedToFactory(Id, "chubakka"),
-                    new ShipmentReceivedInCargoBay(Id, new InventoryShipment("shipmt-11", new[] { new CarPart("engine", 3) })),
-                    new ShipmentReceivedInCargoBay(Id, new InventoryShipment("shipmt-12", new[] { new CarPart("wheels", 40) }))
+                    new ShipmentReceivedInCargoBay(Id, NewShipment("shipmt-11", "3 engine")),
+                    new ShipmentReceivedInCargoBay(Id, NewShipment("shipmt-12", "40 wheel"))
                 );
 
-            When(new ReceiveShipmentInCargoBay(Id, "shipmt-13", new[] { new CarPart("bmw6", 20) }));
+            When(new ReceiveShipmentInCargoBay(Id, "shipmt-13", NewCarPartList("20 bmw-6")));
             Expect("more-than-two-InventoryShipments");
         }
 

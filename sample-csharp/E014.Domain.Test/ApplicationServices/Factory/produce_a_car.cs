@@ -44,15 +44,15 @@ namespace E014.Domain.ApplicationServices.Factory
         {
             Given(
                     Library.RecordBlueprint("death star", new CarPart("magic box", 10)),
-                    Library.RecordBlueprint("Ford", new CarPart("chassis", 1), new CarPart("wheels", 4), new CarPart("engine", 1)),
+                    Library.RecordBlueprint("Ford", NewCarPartList("chassis", "4 wheels", "engine")),
                     new FactoryOpened(Id),
                     new EmployeeAssignedToFactory(Id, "fry"),
-                    new ShipmentUnpackedInCargoBay(Id, "fry", new[] { new InventoryShipment("ship-1", new[] { new CarPart("chassis", 1), new CarPart("wheels", 4), new CarPart("engine", 1) }) })
+                    new ShipmentUnpackedInCargoBay(Id, "fry", new[] { NewShipment("ship1", "chassis", "4 wheels", "engine") })
                 );
 
             When(new ProduceACar(Id, "fry", "Ford"));
 
-            Expect(new CarProduced(Id,"fry", "Ford", new[] { new CarPart("chassis", 1), new CarPart("wheels", 4), new CarPart("engine", 1) }));
+            Expect(new CarProduced(Id, "fry", "Ford", NewCarPartList("chassis", "4 wheels", "engine")));
         }
 
 
@@ -60,12 +60,12 @@ namespace E014.Domain.ApplicationServices.Factory
         public void an_employee_who_has_already_produced_a_car_today_cant_be_assigned()
         {
             Given(
-                    Library.RecordBlueprint("Ford", new CarPart("chassis", 1), new CarPart("wheels", 4), new CarPart("engine", 1)),
+                    Library.RecordBlueprint("Ford", NewCarPartList("chassis", "4 wheels", "engine")),
                     new FactoryOpened(Id),
                     new EmployeeAssignedToFactory(Id, "fry"),
-                    new ShipmentUnpackedInCargoBay(Id, "fry", new[] { new InventoryShipment("ship-1", new[] { new CarPart("chassis", 1), new CarPart("wheels", 4), new CarPart("engine", 1) }) }),
-                    new CarProduced(Id, "fry", "Ford", new[] { new CarPart("chassis", 1), new CarPart("wheels", 4), new CarPart("engine", 1) }),
-                    new ShipmentUnpackedInCargoBay(Id, "fry", new[] { new InventoryShipment("ship-2", new[] { new CarPart("chassis", 1), new CarPart("wheels", 4), new CarPart("engine", 1) }) })
+                    new ShipmentUnpackedInCargoBay(Id, "fry", new[] { NewShipment("ship-1", "chassis", "4 wheels", "engine") }),
+                    new CarProduced(Id, "fry", "Ford", NewCarPartList("chassis", "4 wheels", "engine")),
+                    new ShipmentUnpackedInCargoBay(Id, "fry", new[] { NewShipment("ship-2", "chassis", "4 wheels", "engine") })
                 );
 
             When(new ProduceACar(Id, "fry", "Ford"));
