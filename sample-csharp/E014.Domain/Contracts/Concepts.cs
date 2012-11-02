@@ -26,8 +26,6 @@ namespace E014.Contracts
         public override long Id { get; protected set; }
 
         public FactoryId() { }
-
-        public static FactoryId ForTest = new FactoryId(long.MaxValue);
     }
     [DataContract]
     public sealed class InventoryShipment

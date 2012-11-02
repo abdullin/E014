@@ -6,6 +6,8 @@ namespace E014.Domain.ApplicationServices.Factory
 // ReSharper disable InconsistentNaming
     public class unpack_shipment_in_cargo_bay : factory_application_service_spec
     {
+        static readonly FactoryId Id = new FactoryId(25);
+
         [Test]
         public void an_unpacked_announcement_is_made_with_correct_inventory_list()
         {
@@ -27,7 +29,7 @@ namespace E014.Domain.ApplicationServices.Factory
             Expect("unknown-employee");
         }
 
-        static readonly FactoryId Id = FactoryId.ForTest;
+        
 
      
 
