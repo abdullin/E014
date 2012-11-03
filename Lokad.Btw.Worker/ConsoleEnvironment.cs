@@ -13,7 +13,7 @@ namespace Lokad.Btw.Worker
     {
         public IEventStore Events;
         public FactoryApplicationService FactoryAppService;
-        public IDictionary<string, IShellCommand> Handlers;
+        public IDictionary<string, IShellAction> Handlers;
         public InMemoryBlueprintLibrary Blueprints;
         public ILogger Log = LogManager.GetLoggerFor<ConsoleEnvironment>();
 
@@ -29,7 +29,7 @@ namespace Lokad.Btw.Worker
                 {
                     Events = store,
                     FactoryAppService = fas,
-                    Handlers = ConsoleCommands.Commands,
+                    Handlers = ConsoleActions.Actions,
                     Blueprints = blueprints
                 };
         }
@@ -81,5 +81,4 @@ namespace Lokad.Btw.Worker
             _bluePrints[modelName] = new CarBlueprint(modelName, parts);
         }
     }
-
 }

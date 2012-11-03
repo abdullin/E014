@@ -5,35 +5,33 @@ using E014.Contracts;
 
 namespace Lokad.Btw.Worker
 {
-    public static class ConsoleCommands
+    public static class ConsoleActions
     {
-        public static IDictionary<string,IShellCommand> Commands = new Dictionary<string,IShellCommand>(); 
+        public static IDictionary<string,IShellAction> Actions = new Dictionary<string,IShellAction>(); 
 
-        static ConsoleCommands()
+        static ConsoleActions()
         {
-            Register(new OpenCommand());
-            Register(new RegisterBlueprintCommand());
-            Register(new HireEmployeeCommand());
-            Register(new RecieveShipment());
-            Register(new UnpackShipments());
-            Register(new HelpCommand());
-            Register(new ExitCommand());
-            
+            Register(new OpenFactoryAction());
+            Register(new RegisterBlueprintAction());
+            Register(new HireEmployeeAction());
+            Register(new RecieveShipmentAction());
+            Register(new UnpackShipmentsAction());
+            Register(new HelpAction());
+            Register(new ExitAction());
         }
-        static void Register(IShellCommand cmd)
+        static void Register(IShellAction cmd)
         {
-            Commands.Add(cmd.Keyword, cmd);
+            Actions.Add(cmd.Usage.Split(new[]{' '},2).First(), cmd);
         }
     }
 
-    public interface IShellCommand
+    public interface IShellAction
     {
-        string Keyword { get; }
         string Usage { get; }
         void Execute(ConsoleEnvironment env, string[] args);
     }
 
-    public class OpenCommand : IShellCommand
+    public class OpenFactoryAction : IShellAction
     {
         public string Keyword { get { return "open"; } }
         public string Usage { get { return "open <factoryId> - opens new factory"; } }
@@ -46,10 +44,10 @@ namespace Lokad.Btw.Worker
             env.FactoryAppService.When(new OpenFactory(new FactoryId(id)));
         }
     }
-    public class RegisterBlueprintCommand : IShellCommand
+    public class RegisterBlueprintAction : IShellAction
     {
         public string Keyword { get { return "reg"; } }
-        public string Usage { get { return Keyword + " <design> [<part>, <part>...]"; } }
+        public string Usage { get { return Keyword + "reg <design> [<part>, <part>...]"; } }
         public void Execute(ConsoleEnvironment env, string[] args)
         {
             if (args.Length < 2)
@@ -63,7 +61,7 @@ namespace Lokad.Btw.Worker
         }
     }
 
-    public class HireEmployeeCommand : IShellCommand
+    public class HireEmployeeAction : IShellAction
     {
         public string Keyword { get { return "hire"; } }
         public string Usage { get { return "hire <employeeName>"; } }
@@ -79,7 +77,7 @@ namespace Lokad.Btw.Worker
         }
     }
 
-    public class RecieveShipment : IShellCommand
+    public class RecieveShipmentAction : IShellAction
     {
         public string Keyword { get { return "ship"; } }
         public string Usage { get { return "ship <factoryId> <shipment> [<part>,<part>...]"; } }
@@ -95,7 +93,7 @@ namespace Lokad.Btw.Worker
         }
     }
 
-    public class UnpackShipments : IShellCommand
+    public class UnpackShipmentsAction : IShellAction
     {
         public string Keyword { get { return "unpack"; } }
         public string Usage { get { return "unpack <factoryId> <shipment>"; } }
@@ -112,7 +110,7 @@ namespace Lokad.Btw.Worker
         }
     }
 
-    public class HelpCommand : IShellCommand
+    public class HelpAction : IShellAction
     {
         public string Keyword { get { return "help"; } }
         public string Usage { get { return "help [<command>]"; } }
@@ -120,7 +118,7 @@ namespace Lokad.Btw.Worker
         {
             if (args.Length > 0)
             {
-                IShellCommand value;
+                IShellAction value;
                 if (!env.Handlers.TryGetValue(args[0], out value))
                 {
                     env.Log.Error("Can't find help for '{0}'", args[0]);
@@ -142,13 +140,23 @@ namespace Lokad.Btw.Worker
         }
     }
 
-    public class ExitCommand : IShellCommand
+    public class ExitAction : IShellAction
     {
         public string Keyword { get { return "exit"; } }
         public string Usage { get { return "exit"; } }
         public void Execute(ConsoleEnvironment env, string[] args)
         {
             Environment.Exit(0);
+        }
+    }
+
+    public class StoryAction : IShellAction
+    {
+        public string Keyword { get { return "story"; } }
+        public string Usage { get { return "story"; } }
+        public void Execute(ConsoleEnvironment env, string[] args)
+        {
+            
         }
     }
 }

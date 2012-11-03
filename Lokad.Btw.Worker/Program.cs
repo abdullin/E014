@@ -2,7 +2,6 @@
 using System.Linq;
 using System.Threading;
 using E014;
-using E014.ApplicationServices.Factory;
 
 namespace Lokad.Btw.Worker
 {
@@ -26,7 +25,7 @@ namespace Lokad.Btw.Worker
                     continue;
                 }
                 var split = line.Split(new[] {' '}, StringSplitOptions.RemoveEmptyEntries);
-                IShellCommand value;
+                IShellAction value;
                 if (!env.Handlers.TryGetValue(split[0],out value))
                 {
                     env.Log.Error("Unknown command '{0}'. Type 'help' for help", line);
