@@ -55,13 +55,13 @@ namespace Lokad.Btw.Worker
             }
         }
 
-        static Environment BuildEnvironment()
+        static ConsoleEnvironment BuildEnvironment()
         {
             var store = new InMemoryStore();
             var fas = new FactoryApplicationService(store, null);
             
 
-            return new Environment()
+            return new ConsoleEnvironment()
                 {
                     Events = store,
                     FactoryAppService = fas,
@@ -71,37 +71,4 @@ namespace Lokad.Btw.Worker
         }
     }
 
-    public class Environment
-    {
-        public IEventStore Events;
-        public FactoryApplicationService FactoryAppService;
-        public IDictionary<string, ConsoleCommand> Handlers;
-        public ILogger Log = LogManager.GetLoggerFor<Environment>();
-    }
-
-    public sealed class InMemoryStore : IEventStore
-    {
-        ConcurrentDictionary<string, IList<IEvent>> _store = new ConcurrentDictionary<string, IList<IEvent>>();
-
-        static ILogger Log = LogManager.GetLoggerFor<InMemoryStore>();
-        public EventStream LoadEventStream(string id)
-        {
-            var stream = _store.GetOrAdd(id, new IEvent[0]).ToList();
-
-            return new EventStream()
-                {
-                    Events = stream,
-                    StreamVersion = stream.Count
-                };
-        }
-
-        public void AppendEventsToStream(string id, long expectedVersion, ICollection<IEvent> events)
-        {
-            foreach (var @event in events)
-            {
-                Log.Info("{0}", @event);
-            }
-            _store.AddOrUpdate(id, events.ToList(), (s, list) => list.Concat(events).ToList());
-        }
-    }
 }
