@@ -11,10 +11,12 @@ namespace Lokad.Btw.Worker
 
         static ConsoleCommands()
         {
-            Register("open", OpenFactory, "open <factoryId> - Opens a new factory");
-            Register("usage", Usage, "usage - prints usage");
-            Register("exit", Exit, "exit - exit the shell");
-            Register("assign", AssignEmployee, "assign <factoryId> <employeeName>");
+            Register("open", OpenFactory, "Opens a new factory: open <factoryId>");
+            Register("help", Help, "Print Help: help [<command>]");
+            Register("exit", Exit, "Exit the shell: exit");
+            Register("assign", AssignEmployee, "Assign Employee: assign <factoryId> <employeeName>");
+            Register("ship", RecieveShipment, "RecieveShipment: ship <factoryId> <shipment> [<part>,<part>...]");
+            Register("unpack", UnpackAndInventoryShipmentInCargoBay, "Unpack shipment: unpack <factoryId> <shipment>");
         }
         static void Register(string keyword, Action<Environment, string[]> processor, string description = null)
         {
@@ -31,8 +33,7 @@ namespace Lokad.Btw.Worker
         {
             if (args.Length != 1)
             {
-                env.Log.Error("FactoryId expected");
-                return;
+                throw new ArgumentException("Expected at least 2 args");
             }
             var id = int.Parse(args[0]);
 
@@ -43,19 +44,55 @@ namespace Lokad.Btw.Worker
         {
             if (args.Length < 2)
             {
-                env.Log.Error("Expected 2 args");
-                return;
+                throw new ArgumentException("Expected at least 2 args");
             }
             var id = int.Parse(args[0]);
             var name = string.Join(" ", args.Skip(1));
             env.FactoryAppService.When(new AssignEmployeeToFactory(new FactoryId(id), name));
         }
-
-        public static void Usage(Environment env, string[] args)
+        public static void RecieveShipment(Environment env, string[] args)
         {
+            if (args.Length < 2)
+                throw new ArgumentException("Expected at least 2 args");
+            
+            var id = int.Parse(args[0]);
+            var name = args[1];
+            var parts = args.Skip(2).GroupBy(s => s).Select(g => new CarPart(g.Key, g.Count())).ToArray();
+            env.FactoryAppService.When(new ReceiveShipmentInCargoBay(new FactoryId(id),name, parts));
+        }
+
+        public static void UnpackAndInventoryShipmentInCargoBay(Environment env, string[] args)
+        {
+            if (args.Length < 2)
+            {
+                throw new ArgumentException("Expected at least 2 args");
+            }
+            var id = int.Parse(args[0]);
+            var employee = string.Join(" ", args.Skip(1));
+            env.FactoryAppService.When(new UnpackAndInventoryShipmentInCargoBay(new FactoryId(id),employee));
+        }
+
+        public static void Help(Environment env, string[] args)
+        {
+            if (args.Length > 0)
+            {
+                ConsoleCommand value;
+                if (!env.Handlers.TryGetValue(args[0],out value))
+                {
+                    env.Log.Error("Can't find help for '{0}'", args[0]);
+                    return;
+                }
+                env.Log.Info(value.Usage ?? "No Help available");
+                return;
+            }
+            env.Log.Info("Available commands");
             foreach (var handler in env.Handlers)
             {
                 env.Log.Info("  {0}", handler.Key.ToUpperInvariant());
+                if (!string.IsNullOrWhiteSpace(handler.Value.Usage))
+                {
+                    env.Log.Info("    {0}", handler.Value.Usage);
+                }
             }
         }
 

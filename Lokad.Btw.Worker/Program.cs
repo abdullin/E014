@@ -15,7 +15,7 @@ namespace Lokad.Btw.Worker
         {
             var env = BuildEnvironment();
             env.Log.Info("Starting Being The Worst interactive shell :)");
-            env.Log.Info("Type 'usage' to get more info");
+            env.Log.Info("Type 'help' to get more info");
             
 
             // TODO: add distance-based suggestions
@@ -32,7 +32,7 @@ namespace Lokad.Btw.Worker
                 ConsoleCommand value;
                 if (!env.Handlers.TryGetValue(split[0],out value))
                 {
-                    env.Log.Error("Unknown command '{0}'. Type 'usage' for help", line);
+                    env.Log.Error("Unknown command '{0}'. Type 'help' for help", line);
                     continue;
                 }
                 try
@@ -43,11 +43,15 @@ namespace Lokad.Btw.Worker
                 {
                     env.Log.Error("{0}: {1}", ex.Name, ex.Message);
                 }
+                catch(ArgumentException ex)
+                {
+                    env.Log.Error("Invalid usage of '{0}': {1}",split[0], ex.Message);
+                    env.Log.Debug(value.Usage);
+                }
                 catch (Exception ex)
                 {
                     env.Log.ErrorException(ex, "Failure while processing command '{0}'", split[0]);
                 }
-                
             }
         }
 
