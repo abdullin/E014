@@ -22,12 +22,6 @@ namespace E014
         void Execute(object command);
     }
 
-    public interface IEvent<out TIdentity> : IEvent
-        where TIdentity : IIdentity
-    {
-        TIdentity Id { get; }
-    }
-
     public interface IFactoryEvent : IEvent
     {
         FactoryId Id { get; }
