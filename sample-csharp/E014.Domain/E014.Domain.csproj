@@ -42,6 +42,7 @@
     <Reference Include="Microsoft.CSharp" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AbstractIdentity.cs" />
     <Compile Include="ApplicationServices\Factory\FactoryAggregate.cs" />
     <Compile Include="ApplicationServices\Factory\FactoryApplicationService.cs" />
     <Compile Include="ApplicationServices\Factory\FactoryState.cs" />
@@ -49,6 +50,7 @@
     <Compile Include="Contracts\Messages.ToString.cs" />
     <Compile Include="Contracts\Concepts.cs" />
     <Compile Include="Contracts\Messages.cs" />
+    <Compile Include="Interfaces.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Contracts\Messages.ddd" />
