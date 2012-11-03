@@ -20,11 +20,11 @@ namespace Lokad.Btw.Worker
         public static ConsoleEnvironment BuildEnvironment()
         {
             var store = new InMemoryStore();
-            var fas = new FactoryApplicationService(store, null);
+            
 
             var blueprints = new InMemoryBlueprintLibrary();
             blueprints.Register("model-t", new CarPart("wheel",4), new CarPart("engine",1), new CarPart("chassis",1));
-
+            var fas = new FactoryApplicationService(store, blueprints);
             return new ConsoleEnvironment
                 {
                     Events = store,

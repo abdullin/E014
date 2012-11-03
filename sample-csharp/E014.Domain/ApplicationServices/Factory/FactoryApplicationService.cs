@@ -24,6 +24,11 @@ namespace E014.ApplicationServices.Factory
         // pass dependencies that are needed for this application service via its constructor
         public FactoryApplicationService(IEventStore eventStore, ICarBlueprintLibrary carBlueprintLibrary)
         {
+            if (null == eventStore)
+                throw new ArgumentNullException("eventStore");
+            if (null == carBlueprintLibrary)
+                throw new ArgumentNullException("carBlueprintLibrary");
+
             _eventStore = eventStore;
             _carBlueprintLibrary = carBlueprintLibrary;
         }

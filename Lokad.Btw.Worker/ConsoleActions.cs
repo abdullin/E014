@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using E014;
 using E014.Contracts;
 
 namespace Lokad.Btw.Worker
@@ -18,6 +19,7 @@ namespace Lokad.Btw.Worker
             Register(new UnpackShipmentsAction());
             Register(new HelpAction());
             Register(new ExitAction());
+            Register(new StoryAction());
         }
         static void Register(IShellAction cmd)
         {
@@ -153,10 +155,41 @@ namespace Lokad.Btw.Worker
     public class StoryAction : IShellAction
     {
         public string Keyword { get { return "story"; } }
-        public string Usage { get { return "story"; } }
+        public string Usage { get { return "story [<factoryId=1>]"; } }
         public void Execute(ConsoleEnvironment env, string[] args)
         {
-            
+            int factoryId = 1;
+            if (args.Length>0)
+            {
+                int.TryParse(args[0], out factoryId);
+            }
+            var id = new FactoryId(factoryId);
+            var story = new List<ICommand>
+                {
+                    new OpenFactory(id),
+                    new AssignEmployeeToFactory(id, "Luke"),
+                    new AssignEmployeeToFactory(id, "Han"),
+                    new ReceiveShipmentInCargoBay(id, "from uncle Ben", new[]
+                        {
+                            new CarPart("wheel", 10),
+                            new CarPart("light saber", 2),
+                            new CarPart("C3P0", 1),
+                        }),
+                    new ReceiveShipmentInCargoBay(id, "from Yoda", new[]
+                        {
+                            new CarPart("engine", 2),
+                            new CarPart("chassis", 1),
+                        }),
+                    new UnpackAndInventoryShipmentInCargoBay(id, "Han"),
+                    new ProduceACar(id, "Luke", "model-t")
+                };
+
+            foreach (var command in story)
+            {
+                env.FactoryAppService.Execute(command);
+            }
         }
+
+      
     }
 }

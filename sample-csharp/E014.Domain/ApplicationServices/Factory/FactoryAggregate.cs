@@ -109,15 +109,9 @@ namespace E014.ApplicationServices.Factory
 
             DoRealWork("'" + employeeName + "'" + " is unpacking the cargo bay");
 
-            var shipments = new List<InventoryShipment>();
 
-
-            while (_aggregateState.ShipmentsWaitingToBeUnpacked.Count > 0)
-            {
-                var parts = _aggregateState.ShipmentsWaitingToBeUnpacked.First();
-                shipments.Add(parts.Value);
-            }
-            RecordAndRealizeThat(new ShipmentUnpackedInCargoBay(_aggregateState.Id, employeeName, shipments.ToArray()));
+            var shipments = _aggregateState.ShipmentsWaitingToBeUnpacked.Values.ToArray();
+            RecordAndRealizeThat(new ShipmentUnpackedInCargoBay(_aggregateState.Id, employeeName, shipments));
         }
 
         public void ProduceACar(string employeeName, string carModel, ICarBlueprintLibrary carBlueprintLibrary)
