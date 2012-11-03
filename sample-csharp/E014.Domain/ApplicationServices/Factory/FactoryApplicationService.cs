@@ -42,7 +42,7 @@ namespace E014.ApplicationServices.Factory
         // this approach allows us to use this single Update method for multiple command messages
         // this method is where we implement the lifetime management of an Aggregate in one place
 
-        void Update(ICommand<FactoryId> forAggregateIdentifiedBy, Action<FactoryAggregate> executeCommandUsingThis)
+        void Update(IFactoryCommand forAggregateIdentifiedBy, Action<FactoryAggregate> executeCommandUsingThis)
         {
             // Load the event stream from the event store using the FactoryId of the passed in command
             var eventStream = _eventStore.LoadEventStream(forAggregateIdentifiedBy.Id);

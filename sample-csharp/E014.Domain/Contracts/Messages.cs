@@ -12,7 +12,7 @@ namespace E014.Contracts
     /// Open factory(ID='{Id}')
     /// </summary>
     [DataContract(Namespace = "MyDataContractAttributeNamespace")]
-    public partial class OpenFactory : ICommand<FactoryId>
+    public partial class OpenFactory : IFactoryCommand
     {
         [DataMember(Order = 1)] public FactoryId Id { get; private set; }
         
@@ -32,7 +32,7 @@ namespace E014.Contracts
     /// Opened factory(ID='{Id}')
     /// </summary>
     [DataContract(Namespace = "MyDataContractAttributeNamespace")]
-    public partial class FactoryOpened : IEvent<FactoryId>
+    public partial class FactoryOpened : IFactoryEvent
     {
         [DataMember(Order = 1)] public FactoryId Id { get; private set; }
         
@@ -52,7 +52,7 @@ namespace E014.Contracts
     /// Assign employee '{employeeName}'
     /// </summary>
     [DataContract(Namespace = "MyDataContractAttributeNamespace")]
-    public partial class AssignEmployeeToFactory : ICommand<FactoryId>
+    public partial class AssignEmployeeToFactory : IFactoryCommand
     {
         [DataMember(Order = 1)] public FactoryId Id { get; private set; }
         [DataMember(Order = 2)] public string EmployeeName { get; private set; }
@@ -74,7 +74,7 @@ namespace E014.Contracts
     /// new worker joins our forces: '{employeeName}'
     /// </summary>
     [DataContract(Namespace = "MyDataContractAttributeNamespace")]
-    public partial class EmployeeAssignedToFactory : IEvent<FactoryId>
+    public partial class EmployeeAssignedToFactory : IFactoryEvent
     {
         [DataMember(Order = 1)] public FactoryId Id { get; private set; }
         [DataMember(Order = 2)] public string EmployeeName { get; private set; }
@@ -93,7 +93,7 @@ namespace E014.Contracts
     }
     
     [DataContract(Namespace = "MyDataContractAttributeNamespace")]
-    public partial class ReceiveShipmentInCargoBay : ICommand<FactoryId>
+    public partial class ReceiveShipmentInCargoBay : IFactoryCommand
     {
         [DataMember(Order = 1)] public FactoryId Id { get; private set; }
         [DataMember(Order = 2)] public string ShipmentName { get; private set; }
@@ -117,7 +117,7 @@ namespace E014.Contracts
     }
     
     [DataContract(Namespace = "MyDataContractAttributeNamespace")]
-    public partial class ShipmentReceivedInCargoBay : IEvent<FactoryId>
+    public partial class ShipmentReceivedInCargoBay : IFactoryEvent
     {
         [DataMember(Order = 1)] public FactoryId Id { get; private set; }
         [DataMember(Order = 2)] public InventoryShipment Shipment { get; private set; }
@@ -139,7 +139,7 @@ namespace E014.Contracts
     /// '{theWord}' was heard within the walls. It meant:\r\n    '{meaning}'
     /// </summary>
     [DataContract(Namespace = "MyDataContractAttributeNamespace")]
-    public partial class CurseWordUttered : IEvent<FactoryId>
+    public partial class CurseWordUttered : IFactoryEvent
     {
         [DataMember(Order = 1)] public FactoryId Id { get; private set; }
         [DataMember(Order = 2)] public string TheWord { get; private set; }
@@ -163,7 +163,7 @@ namespace E014.Contracts
     /// Unload the cargo '{employeeName}'
     /// </summary>
     [DataContract(Namespace = "MyDataContractAttributeNamespace")]
-    public partial class UnpackAndInventoryShipmentInCargoBay : ICommand<FactoryId>
+    public partial class UnpackAndInventoryShipmentInCargoBay : IFactoryCommand
     {
         [DataMember(Order = 1)] public FactoryId Id { get; private set; }
         [DataMember(Order = 2)] public string EmployeeName { get; private set; }
@@ -182,7 +182,7 @@ namespace E014.Contracts
     }
     
     [DataContract(Namespace = "MyDataContractAttributeNamespace")]
-    public partial class ShipmentUnpackedInCargoBay : IEvent<FactoryId>
+    public partial class ShipmentUnpackedInCargoBay : IFactoryEvent
     {
         [DataMember(Order = 1)] public FactoryId Id { get; private set; }
         [DataMember(Order = 2)] public string EmployeeName { get; private set; }
@@ -209,7 +209,7 @@ namespace E014.Contracts
     /// Employee '{employee}' produce car:{carModel}
     /// </summary>
     [DataContract(Namespace = "MyDataContractAttributeNamespace")]
-    public partial class ProduceACar : ICommand<FactoryId>
+    public partial class ProduceACar : IFactoryCommand
     {
         [DataMember(Order = 1)] public FactoryId Id { get; private set; }
         [DataMember(Order = 2)] public string EmployeeName { get; private set; }
@@ -230,7 +230,7 @@ namespace E014.Contracts
     }
     
     [DataContract(Namespace = "MyDataContractAttributeNamespace")]
-    public partial class CarProduced : IEvent<FactoryId>
+    public partial class CarProduced : IFactoryEvent
     {
         [DataMember(Order = 1)] public FactoryId Id { get; private set; }
         [DataMember(Order = 2)] public string EmployeeName { get; private set; }

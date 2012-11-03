@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
+using E014.Contracts;
 
 namespace E014
 {
@@ -25,6 +26,15 @@ namespace E014
         where TIdentity : IIdentity
     {
         TIdentity Id { get; }
+    }
+
+    public interface IFactoryEvent : IEvent<FactoryId>
+    {
+        
+    }
+    public interface IFactoryCommand : ICommand
+    {
+        FactoryId Id { get; }
     }
 
     public interface IEventStore

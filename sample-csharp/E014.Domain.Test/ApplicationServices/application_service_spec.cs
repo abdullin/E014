@@ -12,13 +12,13 @@ namespace E014.Domain.ApplicationServices
     /// event sourcing
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    public abstract class application_service_spec<T> : IListSpecifications where T : IIdentity
+    public abstract class application_service_spec : IListSpecifications 
     {
-        readonly List<IEvent<T>> _given = new List<IEvent<T>>();
+        readonly List<IEvent> _given = new List<IEvent>();
 
-        ICommand<T> _when;
-        readonly List<IEvent<T>> _then = new List<IEvent<T>>();
-        readonly List<IEvent<T>> _givenEvents = new List<IEvent<T>>();
+        ICommand _when;
+        readonly List<IEvent> _then = new List<IEvent>();
+        readonly List<IEvent> _givenEvents = new List<IEvent>();
         bool _thenWasCalled;
 
         protected static DateTime Date(int year, int month = 1, int day = 1, int hour = 0)
@@ -33,9 +33,9 @@ namespace E014.Domain.ApplicationServices
 
         protected abstract void SetupServices();
 
-        protected class ExceptionThrown : IEvent<T>, IAmFakeEventForTesting
+        protected class ExceptionThrown : IEvent, IAmFakeEventForTesting
         {
-            public T Id { get; set; }
+            
             public string Name { get; set; }
 
             public ExceptionThrown(string name)
@@ -49,12 +49,12 @@ namespace E014.Domain.ApplicationServices
             }
         }
 
-        public void Given(params IEvent<T>[] g)
+        protected void GivenMessages(params IEvent[] g)
         {
             _given.AddRange(g);
             foreach (var @event in g)
             {
-                var setup = @event as SpecSetupEvent<T>;
+                var setup = @event as SpecSetupEvent;
                 if (setup != null)
                 {
                     setup.Apply();
@@ -63,7 +63,7 @@ namespace E014.Domain.ApplicationServices
             }
         }
 
-        public void When(ICommand<T> command)
+        protected void WhenMessage(ICommand command)
         {
             _when = command;
         }
@@ -151,33 +151,33 @@ namespace E014.Domain.ApplicationServices
             }
         }
 
-        protected abstract void ExecuteCommand(IEventStore store, ICommand<T> cmd);
+        protected abstract void ExecuteCommand(IEventStore store, ICommand cmd);
 
-        public void Expect(string error)
+        public void ExpectError(string error)
         {
-            Expect(new ExceptionThrown(error));
+            ExpectMessages(new ExceptionThrown(error));
         }
 
         bool _dontExecuteOnExpect;
 
-        public void Expect(params IEvent<T>[] g)
+        public void ExpectMessages(params IEvent[] g)
         {
             _thenWasCalled = true;
             _then.AddRange(g);
 
-            IEnumerable<IEvent<T>> actual;
-            var givenEvents = _givenEvents.Cast<IEvent<IIdentity>>().ToArray();
+            IEnumerable<IEvent> actual;
+            var givenEvents = _givenEvents.ToArray();
 
             if (_dontExecuteOnExpect) return;
             var store = new InMemoryStore(givenEvents);
             try
             {
                 ExecuteCommand(store, _when);
-                actual = store.Store.Skip(_givenEvents.Count).Cast<IEvent<T>>().ToArray();
+                actual = store.Store.Skip(_givenEvents.Count).ToArray();
             }
             catch (DomainError e)
             {
-                actual = new IEvent<T>[] { new ExceptionThrown(e.Name) };
+                actual = new IEvent[] { new ExceptionThrown(e.Name) };
             }
 
             var results = CompareAssert(_then.ToArray(), actual.ToArray()).ToArray();
@@ -208,8 +208,8 @@ namespace E014.Domain.ApplicationServices
         }
 
         protected static IEnumerable<ExpectResult> CompareAssert(
-            IEvent<T>[] expected,
-            IEvent<T>[] actual)
+            IEvent[] expected,
+            IEvent[] actual)
         {
             var max = Math.Max(expected.Length, actual.Length);
 
@@ -247,7 +247,7 @@ namespace E014.Domain.ApplicationServices
         {
             public readonly List<IEvent> Store = new List<IEvent>();
 
-            public InMemoryStore(IEnumerable<IEvent<IIdentity>> given)
+            public InMemoryStore(IEnumerable<IEvent> given)
             {
                 Store.AddRange(given);
             }
@@ -301,9 +301,9 @@ namespace E014.Domain.ApplicationServices
     /// event-sourced classes
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    public sealed class SpecSetupEvent<T> : IEvent<T>, IAmFakeEventForTesting where T : IIdentity
+    public sealed class SpecSetupEvent : IEvent, IAmFakeEventForTesting 
     {
-        public T Id { get; set; }
+        
 
         readonly string _describe;
         public readonly Action Apply;

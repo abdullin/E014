@@ -10,18 +10,35 @@ namespace E014.Domain.ApplicationServices.Factory
     /// service. It will be responsible for wiring in test version of services to
     /// factory and executing commands
     /// </summary>
-    public abstract class factory_application_service_spec : application_service_spec<FactoryId>
+    public abstract class factory_application_service_spec : application_service_spec
     {
-        public TestBlueprintLibrary<FactoryId> Library;
+        public TestBlueprintLibrary Library;
 
         protected override void SetupServices()
         {
-            Library = new TestBlueprintLibrary<FactoryId>();
+            Library = new TestBlueprintLibrary();
         }
 
-        protected override void ExecuteCommand(IEventStore store, ICommand<FactoryId> cmd)
+        protected override void ExecuteCommand(IEventStore store, ICommand cmd)
         {
             new FactoryApplicationService(store,Library).Execute(cmd);
+        }
+
+        protected void When(IFactoryCommand when)
+        {
+            this.WhenMessage(when);
+        }
+        protected void Given(params IFactoryEvent[] given)
+        {
+            GivenMessages(given);
+        }
+        protected void GivenSetup(params SpecSetupEvent[] setup)
+        {
+            GivenMessages(setup);
+        }
+        protected void Expect(params IFactoryEvent[] given)
+        {
+            ExpectMessages(given);
         }
 
         // additional helper builders

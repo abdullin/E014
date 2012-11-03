@@ -19,7 +19,7 @@ namespace E014.Domain.ApplicationServices.Factory
         {
             Given(new FactoryOpened(Id));
             When(new OpenFactory(Id));
-            Expect("factory-already-created");
+            ExpectError("factory-already-created");
         }
     }
 }

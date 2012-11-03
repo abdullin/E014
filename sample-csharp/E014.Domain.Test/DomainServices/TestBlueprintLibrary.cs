@@ -11,16 +11,16 @@ namespace E014.Domain.DomainServices
     /// within the specifications
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    public class TestBlueprintLibrary<T> : ICarBlueprintLibrary where T : IIdentity
+    public class TestBlueprintLibrary : ICarBlueprintLibrary 
     {
         readonly IDictionary<string, CarPart[]> _knownDesigns = new Dictionary<string, CarPart[]>();
 
-        public IEvent<T> RecordBlueprint(string name, params CarPart[] parts)
+        public SpecSetupEvent RecordBlueprint(string name, params CarPart[] parts)
         {
             var description = string.Format("Registered car design '{0}' with following requirements:\r\n{1} ", name,
                 parts.Aggregate("", (s, c) => string.Format("{0}\r\n\t{1}: {2}", s, c.Name, c.Quantity)));
 
-            return new SpecSetupEvent<T>(() => _knownDesigns.Add(name, parts), description);
+            return new SpecSetupEvent(() => _knownDesigns.Add(name, parts), description);
         }
 
         CarBlueprint ICarBlueprintLibrary.TryToGetBlueprintForModelOrNull(string modelName)

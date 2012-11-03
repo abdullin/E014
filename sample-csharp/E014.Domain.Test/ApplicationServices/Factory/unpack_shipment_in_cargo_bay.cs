@@ -30,7 +30,7 @@ namespace E014.Domain.ApplicationServices.Factory
                   new EmployeeAssignedToFactory(Id, "ben"),
                   new ShipmentReceivedInCargoBay(Id, NewShipment("ship-1", "chassis")));
             When(new UnpackAndInventoryShipmentInCargoBay(Id, "fry"));
-            Expect("unknown-employee");
+            ExpectError("unknown-employee");
         }
 
         [Test]
@@ -43,7 +43,7 @@ namespace E014.Domain.ApplicationServices.Factory
                   new ShipmentReceivedInCargoBay(Id, shipment),
                   new ShipmentUnpackedInCargoBay(Id, "fry", new[] { shipment }));
             When(new UnpackAndInventoryShipmentInCargoBay(Id, "fry"));
-            Expect("employee-already-unpacked-cargo");
+            ExpectError("employee-already-unpacked-cargo");
         }
 
         [Test]
@@ -52,14 +52,14 @@ namespace E014.Domain.ApplicationServices.Factory
             Given(new FactoryOpened(Id),
                   new EmployeeAssignedToFactory(Id, "fry"));
             When(new UnpackAndInventoryShipmentInCargoBay(Id, "fry"));
-            Expect("empty-InventoryShipments");
+            ExpectError("empty-InventoryShipments");
         }
 
         [Test]
         public void when_factory_not_open_is_an_error()
         {
             When(new UnpackAndInventoryShipmentInCargoBay(Id, "fry"));
-            Expect("factory-is-not-open");
+            ExpectError("factory-is-not-open");
         }
     }
 }

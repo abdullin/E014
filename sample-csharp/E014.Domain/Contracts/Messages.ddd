@@ -128,8 +128,8 @@ const employee = string employeeName;
 
 interface Factory(FactoryId Id)
 {    
-    if ? = ICommand<FactoryId>
-    if ! = IEvent<FactoryId>
+    if ? = IFactoryCommand
+    if ! = IFactoryEvent
 
     // Adding these two messages inside the 'interface' below changes the associated C# interfaces and compilation fails 
     // because these messages have not been handled in the Application Service.

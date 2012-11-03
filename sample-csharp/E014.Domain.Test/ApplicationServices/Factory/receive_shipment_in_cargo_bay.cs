@@ -23,7 +23,7 @@ namespace E014.Domain.ApplicationServices.Factory
             Given(new FactoryOpened(Id),
                             new EmployeeAssignedToFactory(Id, "yoda"));
             When(new ReceiveShipmentInCargoBay(Id, "some shipment", new CarPart[0]));
-            Expect("empty-InventoryShipments");
+            ExpectError("empty-InventoryShipments");
         }
 
         [Test]
@@ -31,7 +31,7 @@ namespace E014.Domain.ApplicationServices.Factory
         {
             Given(new FactoryOpened(Id));
             When(new ReceiveShipmentInCargoBay(Id, "some shipment", NewCarPartList("chassis")));
-            Expect("unknown-employee");
+            ExpectError("unknown-employee");
         }
         [Test]
         public void there_are_already_two_shipments_in_cargo_bay_so_no_new_shipments_allowed()
@@ -44,14 +44,14 @@ namespace E014.Domain.ApplicationServices.Factory
                 );
 
             When(new ReceiveShipmentInCargoBay(Id, "shipmt-13", NewCarPartList("20 bmw-6")));
-            Expect("more-than-two-InventoryShipments");
+            ExpectError("more-than-two-InventoryShipments");
         }
 
         [Test]
         public void when_factory_not_open_is_an_error()
         {
             When(new ReceiveShipmentInCargoBay(Id, "some shipment", new CarPart[0]));
-            Expect("factory-is-not-open");
+            ExpectError("factory-is-not-open");
         }
     }
 }

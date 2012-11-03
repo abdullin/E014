@@ -21,21 +21,21 @@ namespace E014.Domain.ApplicationServices.Factory
             Given(new FactoryOpened(Id),
                     new EmployeeAssignedToFactory(Id,"fry"));
             When(new AssignEmployeeToFactory(Id, "fry"));
-            Expect("employee-name-already-taken");
+            ExpectError("employee-name-already-taken");
         }
         [Test]
         public void no_employee_named_bender_is_allowed_to_be_assigned()
         {
             Given(new FactoryOpened(Id));
             When(new AssignEmployeeToFactory(Id, "bender"));
-            Expect("bender-employee");
+            ExpectError("bender-employee");
         }
 
         [Test]
         public void cant_assign_employee_to_unopened_factory()
         {
             When(new AssignEmployeeToFactory(Id, "fry"));
-            Expect("factory-is-not-open");
+            ExpectError("factory-is-not-open");
         }
     }
 }
