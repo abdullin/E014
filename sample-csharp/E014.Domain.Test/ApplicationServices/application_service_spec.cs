@@ -151,7 +151,7 @@ namespace E014.Domain.ApplicationServices
             }
         }
 
-        protected abstract void ExecuteCommand(IEventStore store, ICommand cmd);
+        protected abstract IEvent[] ExecuteCommand(IEvent[] store, ICommand cmd);
 
         public void ExpectError(string error)
         {
@@ -169,11 +169,9 @@ namespace E014.Domain.ApplicationServices
             var givenEvents = _givenEvents.ToArray();
 
             if (_dontExecuteOnExpect) return;
-            var store = new InMemoryStore(givenEvents);
             try
             {
-                ExecuteCommand(store, _when);
-                actual = store.Store.Skip(_givenEvents.Count).ToArray();
+                actual = ExecuteCommand(givenEvents, _when);
             }
             catch (DomainError e)
             {
@@ -243,33 +241,6 @@ namespace E014.Domain.ApplicationServices
             public string Expectation;
         }
 
-        sealed class InMemoryStore : IEventStore
-        {
-            public readonly List<IEvent> Store = new List<IEvent>();
-
-            public InMemoryStore(IEnumerable<IEvent> given)
-            {
-                Store.AddRange(given);
-            }
-
-            EventStream IEventStore.LoadEventStream(IIdentity id)
-            {
-                var events = Store.OfType<IEvent<IIdentity>>().Where(i => id.Equals(i.Id)).Cast<IEvent>().ToList();
-                return new EventStream
-                {
-                    Events = events,
-                    StreamVersion = events.Count
-                };
-            }
-
-            void IEventStore.AppendEventsToStream(IIdentity id, long expectedVersion, ICollection<IEvent> events)
-            {
-                foreach (var @event in events)
-                {
-                    Store.Add(@event);
-                }
-            }
-        }
 
         public IEnumerable<SpecificationInfo> ListSpecifications()
         {

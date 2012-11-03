@@ -39,8 +39,8 @@ namespace E014
 
     public interface IEventStore
     {
-        EventStream LoadEventStream(IIdentity id);
-        void AppendEventsToStream(IIdentity id, long expectedVersion, ICollection<IEvent> events);
+        EventStream LoadEventStream(string id);
+        void AppendEventsToStream(string id, long expectedVersion, ICollection<IEvent> events);
     }
 
     public sealed class EventStream

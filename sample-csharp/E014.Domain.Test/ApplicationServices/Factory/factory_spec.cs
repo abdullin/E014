@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using E014.ApplicationServices.Factory;
 using E014.Contracts;
 using E014.Domain.DomainServices;
@@ -19,14 +21,21 @@ namespace E014.Domain.ApplicationServices.Factory
             Library = new TestBlueprintLibrary();
         }
 
-        protected override void ExecuteCommand(IEventStore store, ICommand cmd)
+        protected override IEvent[] ExecuteCommand(IEvent[] given, ICommand cmd)
         {
-            new FactoryApplicationService(store,Library).Execute(cmd);
+            var store = new SingleCommitMemoryStore();
+            foreach (var e in given.OfType<IFactoryEvent>())
+            {
+                store.Preload(e.Id.ToString(),e);
+            }
+            new FactoryApplicationService(store, Library).Execute(cmd);
+            return store.Appended ?? new IEvent[0];
         }
+
 
         protected void When(IFactoryCommand when)
         {
-            this.WhenMessage(when);
+            WhenMessage(when);
         }
         protected void Given(params IFactoryEvent[] given)
         {
@@ -54,7 +63,7 @@ namespace E014.Domain.ApplicationServices.Factory
 
             foreach (var description in partDescriptions)
             {
-                var items = description.Split(new char[] {' '}, 2);
+                var items = description.Split(new[] {' '}, 2);
 
                 if (items.Length == 1)
                 {
@@ -69,4 +78,32 @@ namespace E014.Domain.ApplicationServices.Factory
             return carParts;
         }
     }
+
+    sealed class SingleCommitMemoryStore : IEventStore
+    {
+        public readonly IList<Tuple<string, IEvent>> Store = new List<Tuple<string, IEvent>>();
+        public IEvent[] Appended = null; 
+        public void Preload(string id, IEvent e)
+        {
+            Store.Add(Tuple.Create(id, e));
+        }
+
+        EventStream IEventStore.LoadEventStream(string id)
+        {
+            var events = Store.Where(i => id.Equals(i.Item1)).Select(i => i.Item2).ToList();
+            return new EventStream
+            {
+                Events = events,
+                StreamVersion = events.Count
+            };
+        }
+
+        void IEventStore.AppendEventsToStream(string id, long expectedVersion, ICollection<IEvent> events)
+        {
+            if (Appended != null)
+                throw new InvalidOperationException("Only one commit it allowed");
+            Appended = events.ToArray();
+        }
+    }
+
 }

@@ -45,7 +45,8 @@ namespace E014.ApplicationServices.Factory
         void Update(IFactoryCommand forAggregateIdentifiedBy, Action<FactoryAggregate> executeCommandUsingThis)
         {
             // Load the event stream from the event store using the FactoryId of the passed in command
-            var eventStream = _eventStore.LoadEventStream(forAggregateIdentifiedBy.Id);
+            var key = forAggregateIdentifiedBy.Id.ToString();
+            var eventStream = _eventStore.LoadEventStream(key);
 
             // create a new Factory aggregate instance from its history of allEventsRelatedToThisAggregateId
             var aggregateState = new FactoryState(eventStream.Events);
@@ -56,7 +57,7 @@ namespace E014.ApplicationServices.Factory
             executeCommandUsingThis(aggregate);
 
             // append resulting changes to the aggregate's event stream
-            _eventStore.AppendEventsToStream(forAggregateIdentifiedBy.Id, eventStream.StreamVersion, aggregate.EventsThatHappened);
+            _eventStore.AppendEventsToStream(key, eventStream.StreamVersion, aggregate.EventsThatHappened);
         }
 
         // Now let's use the Update helper method above to wire command messages to actual aggregate methods
