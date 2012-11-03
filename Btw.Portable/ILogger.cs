@@ -307,8 +307,8 @@ namespace Platform
         }
 
 
-        static readonly ConsoleColor FatalColor = ConsoleColor.DarkRed;
-        static readonly ConsoleColor ErrorColor = ConsoleColor.DarkYellow;
+        static readonly ConsoleColor FatalColor = ConsoleColor.Red;
+        static readonly ConsoleColor ErrorColor = ConsoleColor.DarkRed;
         static readonly ConsoleColor InfoColor = ConsoleColor.Green;
         static readonly ConsoleColor DebugColor = ConsoleColor.Gray;
         static readonly ConsoleColor TraceColor = ConsoleColor.DarkGray;

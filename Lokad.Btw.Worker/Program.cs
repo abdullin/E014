@@ -11,16 +11,17 @@ namespace Lokad.Btw.Worker
 {
     class Program
     {
-
-        static ILogger Log = LogManager.GetLoggerFor<Program>();
         static void Main(string[] args)
         {
-            Log.Info("Starting Being The Worst interactive shell :)");
-            Log.Info("Type 'usage' to get more info");
             var env = BuildEnvironment();
+            env.Log.Info("Starting Being The Worst interactive shell :)");
+            env.Log.Info("Type 'usage' to get more info");
+            
 
+            // TODO: add distance-based suggestions
             while(true)
             {
+                Thread.Sleep(300);
                 Console.Write("> ");
                 var line = Console.ReadLine();
                 if (string.IsNullOrWhiteSpace(line))
@@ -28,27 +29,26 @@ namespace Lokad.Btw.Worker
                     continue;
                 }
                 var split = line.Split(new[] {' '}, StringSplitOptions.RemoveEmptyEntries);
-                Action<Environment, string[]> value;
+                ConsoleCommand value;
                 if (!env.Handlers.TryGetValue(split[0],out value))
                 {
-                    Console.WriteLine("Unknown command {0}", line);
+                    env.Log.Error("Unknown command '{0}'. Type 'usage' for help", line);
                     continue;
                 }
                 try
                 {
-                    value(env, split.Skip(1).ToArray());
+                    value.Processor(env, split.Skip(1).ToArray());
+                }
+                catch (DomainError ex)
+                {
+                    env.Log.Error("{0}: {1}", ex.Name, ex.Message);
                 }
                 catch (Exception ex)
                 {
-                    Log.ErrorException(ex, "Failure while processing command '{0}'", split[0]);
+                    env.Log.ErrorException(ex, "Failure while processing command '{0}'", split[0]);
                 }
-                Thread.Sleep(300);
+                
             }
-
-
-            Console.ReadLine();
-            
-
         }
 
         static Environment BuildEnvironment()
@@ -61,7 +61,7 @@ namespace Lokad.Btw.Worker
                 {
                     Events = store,
                     FactoryAppService = fas,
-                    Handlers = ConsoleCommands.RegisterCommands(),
+                    Handlers = ConsoleCommands.Commands,
 
                 };
         }
@@ -71,7 +71,7 @@ namespace Lokad.Btw.Worker
     {
         public IEventStore Events;
         public FactoryApplicationService FactoryAppService;
-        public IDictionary<string, Action<Environment, string[]>> Handlers;
+        public IDictionary<string, ConsoleCommand> Handlers;
         public ILogger Log = LogManager.GetLoggerFor<Environment>();
     }
 
