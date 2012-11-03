@@ -28,9 +28,9 @@ namespace E014
         TIdentity Id { get; }
     }
 
-    public interface IFactoryEvent : IEvent<FactoryId>
+    public interface IFactoryEvent : IEvent
     {
-        
+        FactoryId Id { get; }
     }
     public interface IFactoryCommand : ICommand
     {
