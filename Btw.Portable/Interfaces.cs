@@ -4,11 +4,11 @@ using System.Runtime.Serialization;
 
 namespace E014
 {
-    public interface ISampleMessage { }
+    public abstract class Message { }
 
-    public interface ICommand : ISampleMessage { }
+    public interface ICommand {}
 
-    public interface IEvent : ISampleMessage { }
+    public interface IEvent { }
 
     public interface ICommand<out TIdentity> : ICommand
         where TIdentity : IIdentity
