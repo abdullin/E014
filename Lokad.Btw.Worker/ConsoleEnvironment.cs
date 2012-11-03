@@ -14,7 +14,25 @@ namespace Lokad.Btw.Worker
         public IEventStore Events;
         public FactoryApplicationService FactoryAppService;
         public IDictionary<string, ConsoleCommand> Handlers;
+        public InMemoryBlueprintLibrary Blueprints;
         public ILogger Log = LogManager.GetLoggerFor<ConsoleEnvironment>();
+
+        public static ConsoleEnvironment BuildEnvironment()
+        {
+            var store = new InMemoryStore();
+            var fas = new FactoryApplicationService(store, null);
+
+            var blueprints = new InMemoryBlueprintLibrary();
+            blueprints.Register("model-t", new CarPart("wheel",4), new CarPart("engine",1), new CarPart("chassis",1));
+
+            return new ConsoleEnvironment
+                {
+                    Events = store,
+                    FactoryAppService = fas,
+                    Handlers = ConsoleCommands.Commands,
+                    Blueprints = blueprints
+                };
+        }
     }
 
     public sealed class InMemoryStore : IEventStore
@@ -45,7 +63,9 @@ namespace Lokad.Btw.Worker
 
     public sealed class InMemoryBlueprintLibrary : ICarBlueprintLibrary
     {
-        IDictionary<string,CarBlueprint> _bluePrints = new Dictionary<string, CarBlueprint>(StringComparer.InvariantCultureIgnoreCase);
+        readonly IDictionary<string,CarBlueprint> _bluePrints = new Dictionary<string, CarBlueprint>(StringComparer.InvariantCultureIgnoreCase);
+
+        static ILogger Log = LogManager.GetLoggerFor<InMemoryBlueprintLibrary>();
         public CarBlueprint TryToGetBlueprintForModelOrNull(string modelName)
         {
             CarBlueprint value;
@@ -54,6 +74,11 @@ namespace Lokad.Btw.Worker
                 return value;
             }
             return null;
+        }
+        public void Register(string modelName, params CarPart[] parts)
+        {
+            Log.Debug("Adding new design {0}: {1}", modelName, string.Join(", ", parts.Select(p => string.Format("{0} x {1}", p.Quantity, p.Name))));
+            _bluePrints[modelName] = new CarBlueprint(modelName, parts);
         }
     }
 

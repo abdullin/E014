@@ -1,11 +1,8 @@
 ﻿using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using E014;
 using E014.ApplicationServices.Factory;
-using Platform;
 
 namespace Lokad.Btw.Worker
 {
@@ -13,7 +10,7 @@ namespace Lokad.Btw.Worker
     {
         static void Main(string[] args)
         {
-            var env = BuildEnvironment();
+            var env = ConsoleEnvironment.BuildEnvironment();
             env.Log.Info("Starting Being The Worst interactive shell :)");
             env.Log.Info("Type 'help' to get more info");
             
@@ -54,21 +51,5 @@ namespace Lokad.Btw.Worker
                 }
             }
         }
-
-        static ConsoleEnvironment BuildEnvironment()
-        {
-            var store = new InMemoryStore();
-            var fas = new FactoryApplicationService(store, null);
-            
-
-            return new ConsoleEnvironment()
-                {
-                    Events = store,
-                    FactoryAppService = fas,
-                    Handlers = ConsoleCommands.Commands,
-
-                };
-        }
     }
-
 }

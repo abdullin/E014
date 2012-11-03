@@ -17,6 +17,7 @@ namespace Lokad.Btw.Worker
             Register("assign", AssignEmployee, "Assign Employee: assign <factoryId> <employeeName>");
             Register("ship", RecieveShipment, "RecieveShipment: ship <factoryId> <shipment> [<part>,<part>...]");
             Register("unpack", UnpackAndInventoryShipmentInCargoBay, "Unpack shipment: unpack <factoryId> <shipment>");
+            Register("reg", RegisterBlueprint, "Register blueprint: reg <design> [<part>, <part>...]");
         }
         static void Register(string keyword, Action<ConsoleEnvironment, string[]> processor, string description = null)
         {
@@ -38,6 +39,18 @@ namespace Lokad.Btw.Worker
             var id = int.Parse(args[0]);
 
             env.FactoryAppService.When(new OpenFactory(new FactoryId(id)));
+        }
+
+        public static void RegisterBlueprint(ConsoleEnvironment env, string[] args)
+        {
+            if (args.Length < 2)
+            {
+                throw new ArgumentException("Expected at least 2 args");
+            }
+            
+            var design = args[0];
+            var parts = args.Skip(1).GroupBy(s => s).Select(g => new CarPart(g.Key, g.Count())).ToArray();
+            env.Blueprints.Register(design, parts);
         }
 
         public static void AssignEmployee(ConsoleEnvironment env, string[] args)
@@ -98,7 +111,7 @@ namespace Lokad.Btw.Worker
 
         public static void Exit(ConsoleEnvironment env, string[] args)
         {
-            System.Environment.Exit(0);
+            Environment.Exit(0);
         }
     }
 
