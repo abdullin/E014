@@ -11,12 +11,6 @@ namespace E014
 
     public interface IEvent { }
 
-    public interface ICommand<out TIdentity> : ICommand
-        where TIdentity : IIdentity
-    {
-        TIdentity Id { get; }
-    }
-
     public interface IApplicationService
     {
         void Execute(object command);
