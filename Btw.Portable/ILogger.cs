@@ -282,8 +282,10 @@ namespace Platform
         {
             foreach (var tuple in _queue.GetConsumingEnumerable())
             {
+                var old = Console.ForegroundColor;
                 Console.ForegroundColor = tuple.Item1;
                 Console.WriteLine(tuple.Item2);
+                Console.ForegroundColor = old;
             }
         }
     }

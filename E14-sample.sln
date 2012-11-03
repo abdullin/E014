@@ -7,7 +7,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "E014.Domain.Test", "sample-
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Btw.Portable", "Btw.Portable\Btw.Portable.csproj", "{CF9336B4-AC5A-4E74-BA89-FA45D2F696BE}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Lokad.Btw.Worker", "Lokad.Btw.Worker\Lokad.Btw.Worker.csproj", "{449327E4-6EC9-4DFC-8F0F-3ABF2F5EE476}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Lokad.Btw.Console", "Lokad.Btw.Worker\Lokad.Btw.Console.csproj", "{449327E4-6EC9-4DFC-8F0F-3ABF2F5EE476}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
