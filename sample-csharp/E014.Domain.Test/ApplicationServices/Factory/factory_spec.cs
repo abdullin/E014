@@ -63,7 +63,7 @@ namespace E014.Domain.ApplicationServices.Factory
 
             foreach (var description in partDescriptions)
             {
-                var items = description.Split(new[] {' '}, 2);
+                var items = description.Split(new char[] {' '}, 2);
 
                 if (items.Length == 1)
                 {
