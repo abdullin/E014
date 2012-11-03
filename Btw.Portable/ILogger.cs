@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Threading;
 
 namespace Platform
@@ -71,12 +72,17 @@ namespace Platform
 
         public static ILogger GetLogger(string logName)
         {
-            return new LazyLogger(() => _logFactory(logName));
+            return _logFactory(logName);
         }
 
 
-        static Func<string, ILogger> _logFactory;
+        static Func<string, ILogger> _logFactory = s => ConsoleLoggerFactory.GetLogFor(s);
         static Action _finalizer;
+
+
+
+        
+
 
         public static void Init(Func<string,ILogger> logger, Action dispose)
         {
@@ -85,7 +91,7 @@ namespace Platform
                 throw new InvalidOperationException("Cannot initialize twice");
 
             _initialized = true;
-
+            _logFactory = logger;
             _finalizer = dispose;
             //SetLogsDirectoryIfNeeded(logsDirectory);
             //SetComponentName(componentName);
@@ -94,6 +100,7 @@ namespace Platform
 
         public static void Finish()
         {
+            _finalizer();
             //NLog.LogManager.Configuration = null;
         }
 
@@ -248,6 +255,39 @@ namespace Platform
         }
     }
 
+    public static class ConsoleLoggerFactory
+    {
+        static BlockingCollection<Tuple<ConsoleColor, string>> _queue;
+        static Thread _thread;
+        static  readonly object _lock = new object();
+
+        public static ILogger GetLogFor(string name)
+        {
+            lock (_lock)
+            {
+                if (_thread == null)
+                {
+                     _queue = new BlockingCollection<Tuple<ConsoleColor, string>>();
+                    _thread = new Thread(PerformLogging)
+                    {
+                        IsBackground = true,
+                        Name = "Console Logger"
+                    };
+                    _thread.Start();
+                }
+            }
+            return new ConsoleLogger(_queue);
+        }
+        static void PerformLogging()
+        {
+            foreach (var tuple in _queue.GetConsumingEnumerable())
+            {
+                Console.ForegroundColor = tuple.Item1;
+                Console.WriteLine(tuple.Item2);
+            }
+        }
+    }
+
     /// <summary>
     /// This should be used as singleton, which polls log messages from multiple sources.
     /// Replace with NLog in production
@@ -256,33 +296,18 @@ namespace Platform
     {
         // TODO: reuse object pool, if needed.
         // TODO: better queue for Mono
-        
 
-        BlockingCollection<Tuple<ConsoleColor,string>> _queue = new BlockingCollection<Tuple<ConsoleColor, string>>();
-        Thread _thread;
+        readonly BlockingCollection<Tuple<ConsoleColor, string>> _queue; 
  
-        public ConsoleLogger()
+        public ConsoleLogger(BlockingCollection<Tuple<ConsoleColor, string>> queue)
         {
-            _thread = new Thread(PerformLogging)
-                {
-                    IsBackground = true,
-                    Name = "Console Logger"
-                };
-            _thread.Start();
+            _queue = queue;
         }
 
-        void PerformLogging()
-        {
-            foreach (var tuple in _queue.GetConsumingEnumerable())
-            {
-                Console.ForegroundColor = tuple.Item1;
-                Console.WriteLine(tuple.Item2);
-            }
-        }
 
         static readonly ConsoleColor FatalColor = ConsoleColor.DarkRed;
         static readonly ConsoleColor ErrorColor = ConsoleColor.DarkYellow;
-        static readonly ConsoleColor InfoColor = ConsoleColor.DarkBlue;
+        static readonly ConsoleColor InfoColor = ConsoleColor.Green;
         static readonly ConsoleColor DebugColor = ConsoleColor.Gray;
         static readonly ConsoleColor TraceColor = ConsoleColor.DarkGray;
         public void Fatal(string text)
