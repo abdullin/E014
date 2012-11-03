@@ -13,7 +13,7 @@ namespace Lokad.Btw.Worker
     {
         public IEventStore Events;
         public FactoryApplicationService FactoryAppService;
-        public IDictionary<string, ConsoleCommand> Handlers;
+        public IDictionary<string, IShellCommand> Handlers;
         public InMemoryBlueprintLibrary Blueprints;
         public ILogger Log = LogManager.GetLoggerFor<ConsoleEnvironment>();
 

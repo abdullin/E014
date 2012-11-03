@@ -7,41 +7,50 @@ namespace Lokad.Btw.Worker
 {
     public static class ConsoleCommands
     {
-        public static IDictionary<string,ConsoleCommand> Commands = new Dictionary<string,ConsoleCommand>(); 
+        public static IDictionary<string,IShellCommand> Commands = new Dictionary<string,IShellCommand>(); 
 
         static ConsoleCommands()
         {
-            Register("open", OpenFactory, "Opens a new factory: open <factoryId>");
-            Register("help", Help, "Print Help: help [<command>]");
-            Register("exit", Exit, "Exit the shell: exit");
-            Register("assign", AssignEmployee, "Assign Employee: assign <factoryId> <employeeName>");
-            Register("ship", RecieveShipment, "RecieveShipment: ship <factoryId> <shipment> [<part>,<part>...]");
-            Register("unpack", UnpackAndInventoryShipmentInCargoBay, "Unpack shipment: unpack <factoryId> <shipment>");
-            Register("reg", RegisterBlueprint, "Register blueprint: reg <design> [<part>, <part>...]");
+            Register(new OpenCommand());
+            Register(new RegisterBlueprintCommand());
+            Register(new HireEmployeeCommand());
+            Register(new RecieveShipment());
+            Register(new UnpackShipments());
+            Register(new HelpCommand());
+            Register(new ExitCommand());
+            
         }
-        static void Register(string keyword, Action<ConsoleEnvironment, string[]> processor, string description = null)
+        static void Register(IShellCommand cmd)
         {
-            Commands.Add(keyword, new ConsoleCommand()
-                {
-                    Processor = processor,
-                    Usage = description
-                });
+            Commands.Add(cmd.Keyword, cmd);
         }
+    }
 
+    public interface IShellCommand
+    {
+        string Keyword { get; }
+        string Usage { get; }
+        void Execute(ConsoleEnvironment env, string[] args);
+    }
 
+    public class OpenCommand : IShellCommand
+    {
+        public string Keyword { get { return "open"; } }
+        public string Usage { get { return "open <factoryId> - opens new factory"; } }
 
-        public static void OpenFactory(ConsoleEnvironment env, string[] args)
+        public void Execute(ConsoleEnvironment env, string[] args)
         {
             if (args.Length != 1)
-            {
                 throw new ArgumentException("Expected at least 2 args");
-            }
             var id = int.Parse(args[0]);
-
             env.FactoryAppService.When(new OpenFactory(new FactoryId(id)));
         }
-
-        public static void RegisterBlueprint(ConsoleEnvironment env, string[] args)
+    }
+    public class RegisterBlueprintCommand : IShellCommand
+    {
+        public string Keyword { get { return "reg"; } }
+        public string Usage { get { return Keyword + " <design> [<part>, <part>...]"; } }
+        public void Execute(ConsoleEnvironment env, string[] args)
         {
             if (args.Length < 2)
             {
@@ -52,8 +61,13 @@ namespace Lokad.Btw.Worker
             var parts = args.Skip(1).GroupBy(s => s).Select(g => new CarPart(g.Key, g.Count())).ToArray();
             env.Blueprints.Register(design, parts);
         }
+    }
 
-        public static void AssignEmployee(ConsoleEnvironment env, string[] args)
+    public class HireEmployeeCommand : IShellCommand
+    {
+        public string Keyword { get { return "hire"; } }
+        public string Usage { get { return "hire <employeeName>"; } }
+        public void Execute(ConsoleEnvironment env, string[] args)
         {
             if (args.Length < 2)
             {
@@ -63,18 +77,29 @@ namespace Lokad.Btw.Worker
             var name = string.Join(" ", args.Skip(1));
             env.FactoryAppService.When(new AssignEmployeeToFactory(new FactoryId(id), name));
         }
-        public static void RecieveShipment(ConsoleEnvironment env, string[] args)
+    }
+
+    public class RecieveShipment : IShellCommand
+    {
+        public string Keyword { get { return "ship"; } }
+        public string Usage { get { return "ship <factoryId> <shipment> [<part>,<part>...]"; } }
+        public void Execute(ConsoleEnvironment env, string[] args)
         {
             if (args.Length < 2)
                 throw new ArgumentException("Expected at least 2 args");
-            
+
             var id = int.Parse(args[0]);
             var name = args[1];
             var parts = args.Skip(2).GroupBy(s => s).Select(g => new CarPart(g.Key, g.Count())).ToArray();
-            env.FactoryAppService.When(new ReceiveShipmentInCargoBay(new FactoryId(id),name, parts));
+            env.FactoryAppService.When(new ReceiveShipmentInCargoBay(new FactoryId(id), name, parts));
         }
+    }
 
-        public static void UnpackAndInventoryShipmentInCargoBay(ConsoleEnvironment env, string[] args)
+    public class UnpackShipments : IShellCommand
+    {
+        public string Keyword { get { return "unpack"; } }
+        public string Usage { get { return "unpack <factoryId> <shipment>"; } }
+        public void Execute(ConsoleEnvironment env, string[] args)
         {
             if (args.Length < 2)
             {
@@ -82,15 +107,21 @@ namespace Lokad.Btw.Worker
             }
             var id = int.Parse(args[0]);
             var employee = string.Join(" ", args.Skip(1));
-            env.FactoryAppService.When(new UnpackAndInventoryShipmentInCargoBay(new FactoryId(id),employee));
-        }
+            env.FactoryAppService.When(new UnpackAndInventoryShipmentInCargoBay(new FactoryId(id), employee));
 
-        public static void Help(ConsoleEnvironment env, string[] args)
+        }
+    }
+
+    public class HelpCommand : IShellCommand
+    {
+        public string Keyword { get { return "help"; } }
+        public string Usage { get { return "help [<command>]"; } }
+        public void Execute(ConsoleEnvironment env, string[] args)
         {
             if (args.Length > 0)
             {
-                ConsoleCommand value;
-                if (!env.Handlers.TryGetValue(args[0],out value))
+                IShellCommand value;
+                if (!env.Handlers.TryGetValue(args[0], out value))
                 {
                     env.Log.Error("Can't find help for '{0}'", args[0]);
                     return;
@@ -107,17 +138,17 @@ namespace Lokad.Btw.Worker
                     env.Log.Info("    {0}", handler.Value.Usage);
                 }
             }
-        }
 
-        public static void Exit(ConsoleEnvironment env, string[] args)
-        {
-            Environment.Exit(0);
         }
     }
 
-    public class ConsoleCommand
+    public class ExitCommand : IShellCommand
     {
-        public string Usage;
-        public Action<ConsoleEnvironment, string[]> Processor;
+        public string Keyword { get { return "exit"; } }
+        public string Usage { get { return "exit"; } }
+        public void Execute(ConsoleEnvironment env, string[] args)
+        {
+            Environment.Exit(0);
+        }
     }
 }
