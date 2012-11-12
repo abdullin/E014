@@ -141,13 +141,13 @@ namespace E014.Domain
         {
             var list = new List<string>();
             int count = 0;
-            var serializers = RegisterSerializers().ToArray();
+            
             foreach (var exp in msgs.Messages)
             {
                 count++;
                 var expected = exp.Message;
 
-                foreach (var serializer in serializers)
+                foreach (var serializer in _serializers)
                 {
                     var actual = serializer.DeepClone(expected);
                     var compare = CompareObjects.FindDifferences(expected, actual);
