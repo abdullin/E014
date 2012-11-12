@@ -42,6 +42,8 @@
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Runtime.Serialization" />
+    <Reference Include="System.XML" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ApplicationServices\Factory\assign_employee_to_factory.cs" />
@@ -54,6 +56,7 @@
     <Compile Include="ApplicationServices\Factory\receive_shipment_in_cargo_bay.cs" />
     <Compile Include="ApplicationServices\Factory\unpack_shipment_in_cargo_bay.cs" />
     <Compile Include="Runner.cs" />
+    <Compile Include="TestMessageSerialization.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\Btw.Portable\Btw.Portable.csproj">

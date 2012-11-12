@@ -5,11 +5,11 @@ using E014.Contracts;
 
 namespace E014
 {
-    public abstract class Message { }
+    public interface IMessage {}
 
-    public interface ICommand {}
+    public interface ICommand : IMessage{}
 
-    public interface IEvent { }
+    public interface IEvent : ICommand { }
 
     public interface IApplicationService
     {
