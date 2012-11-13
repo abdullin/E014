@@ -38,6 +38,8 @@ namespace E014.Domain.ApplicationServices
             
             public string Name { get; set; }
 
+            public string FakeType { get { return Name; } }
+
             public ExceptionThrown(string name)
             {
                 Name = name;
@@ -274,7 +276,7 @@ namespace E014.Domain.ApplicationServices
     /// <typeparam name="T"></typeparam>
     public sealed class SpecSetupEvent : IEvent, IAmFakeEventForTesting 
     {
-        
+        public string FakeType { get { return null; } }
 
         readonly string _describe;
         public readonly Action Apply;
@@ -304,5 +306,8 @@ namespace E014.Domain.ApplicationServices
         public IEvent[] Then;
     }
 
-    public interface IAmFakeEventForTesting { }
+    public interface IAmFakeEventForTesting
+    {
+        string FakeType { get; }
+    }
 }
