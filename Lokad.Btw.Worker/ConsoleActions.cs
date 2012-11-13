@@ -49,7 +49,7 @@ namespace Lokad.Btw.Worker
     public class RegisterBlueprintAction : IShellAction
     {
         public string Keyword { get { return "reg"; } }
-        public string Usage { get { return Keyword + "reg <design> [<part>, <part>...]"; } }
+        public string Usage { get { return "reg <design> [<part>, <part>...]"; } }
         public void Execute(ConsoleEnvironment env, string[] args)
         {
             if (args.Length < 2)
@@ -66,7 +66,7 @@ namespace Lokad.Btw.Worker
     public class HireEmployeeAction : IShellAction
     {
         public string Keyword { get { return "hire"; } }
-        public string Usage { get { return "hire <employeeName>"; } }
+        public string Usage { get { return "hire <factoryid> <employeeName>"; } }
         public void Execute(ConsoleEnvironment env, string[] args)
         {
             if (args.Length < 2)
