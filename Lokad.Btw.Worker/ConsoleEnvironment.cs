@@ -5,6 +5,7 @@ using System.Linq;
 using E014;
 using E014.ApplicationServices.Factory;
 using E014.Contracts;
+using E014.Projections;
 using Microsoft.CSharp.RuntimeBinder;
 using Platform;
 
@@ -109,46 +110,6 @@ namespace Lokad.Btw.Worker
         }
     }
 
-
-    public sealed class ActiveFactoriesProjection
-    {
-        public IDictionary<FactoryId,FactoryInfo> Factories = new Dictionary<FactoryId, FactoryInfo>();
-
-        public sealed class FactoryInfo
-        {
-            public int WorkerCount;
-            public int PartsInCargoBay;
-        }
-
-
-        public void When(FactoryOpened e)
-        {
-            Factories[e.Id] = new FactoryInfo();
-        }
-        public void When(EmployeeAssignedToFactory e)
-        {
-            Factories[e.Id].WorkerCount += 1;
-        }
-        public void When(ShipmentReceivedInCargoBay e)
-        {
-            Factories[e.Id].PartsInCargoBay += e.Shipment.Cargo.Sum(p => p.Quantity);
-        }
-        public void When(ShipmentUnpackedInCargoBay e)
-        {
-            Factories[e.Id].PartsInCargoBay -= e.InventoryShipments.Sum(s => s.Cargo.Sum(p => p.Quantity));
-        }
-    }
-
-    public sealed class WorkerRegistryProjection
-    {
-        public List<Tuple<string,FactoryId>> List = new List<Tuple<string, FactoryId>>();
-  
-        public void When(EmployeeAssignedToFactory e)
-        {
-            List.Add(Tuple.Create(e.EmployeeName, e.Id));
-        }
-        
-    }
 
     public sealed class InMemoryBlueprintLibrary : ICarBlueprintLibrary
     {
