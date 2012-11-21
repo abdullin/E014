@@ -43,14 +43,11 @@
   <ItemGroup>
     <Compile Include="ConsoleActions.cs" />
     <Compile Include="ConsoleEnvironment.cs" />
+    <Compile Include="ILogger.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Btw.Portable\Btw.Portable.csproj">
-      <Project>{CF9336B4-AC5A-4E74-BA89-FA45D2F696BE}</Project>
-      <Name>Btw.Portable</Name>
-    </ProjectReference>
     <ProjectReference Include="..\sample-csharp\E014.Domain\E014.Domain.csproj">
       <Project>{A23765B0-A563-42DC-AB84-4710B4B9675F}</Project>
       <Name>E014.Domain</Name>

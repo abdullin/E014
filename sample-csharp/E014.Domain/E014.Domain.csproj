@@ -63,12 +63,6 @@
     <None Include="Contracts\Messages.ddd.E14.comments" />
     <None Include="FactoryLanguageAndRules.md" />
   </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\..\Btw.Portable\Btw.Portable.csproj">
-      <Project>{CF9336B4-AC5A-4E74-BA89-FA45D2F696BE}</Project>
-      <Name>Btw.Portable</Name>
-    </ProjectReference>
-  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
