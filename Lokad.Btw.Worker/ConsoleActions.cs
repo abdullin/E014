@@ -22,6 +22,7 @@ namespace Lokad.Btw.Worker
             Register(new ExitAction());
             Register(new StoryAction());
             Register(new ListFactoriesAction());
+            Register(new ListWorkersAction());
         }
         static void Register(IShellAction cmd)
         {
@@ -154,9 +155,36 @@ namespace Lokad.Btw.Worker
         }
     }
 
+    public class ListWorkersAction : IShellAction
+    {
+        public string Keyword { get { return "workers"; } }
+        public string Usage { get { return Keyword; } }
+        public void Execute(ConsoleEnvironment env, string[] args)
+        {
+            var registry = env.WorkerRegistry.List;
+
+
+            if (!registry.Any())
+            {
+                env.Log.Info("No workers found");
+                return;
+            }
+            
+            foreach (var groups in registry.GroupBy(r=>r.Item2.Id))
+            {
+                env.Log.Info("Factory " + groups.Key);
+
+                foreach (var tuple in groups)
+                {
+                    env.Log.Info("  " + tuple.Item1);
+                }
+            }
+        }
+    }
+
     public class ListFactoriesAction : IShellAction
     {
-        public string Keyword { get { return "list"; } }
+        public string Keyword { get { return "factories"; } }
         public string Usage { get { return Keyword; } }
         public void Execute(ConsoleEnvironment env, string[] args)
         {

@@ -5,6 +5,7 @@ using System.Linq;
 using E014;
 using E014.ApplicationServices.Factory;
 using E014.Contracts;
+using Microsoft.CSharp.RuntimeBinder;
 using Platform;
 
 namespace Lokad.Btw.Worker
@@ -17,6 +18,7 @@ namespace Lokad.Btw.Worker
         public InMemoryBlueprintLibrary Blueprints;
         public ILogger Log = LogManager.GetLoggerFor<ConsoleEnvironment>();
         public ActiveFactoriesProjection ActiveFactories;
+        public WorkerRegistryProjection WorkerRegistry;
 
         public static ConsoleEnvironment BuildEnvironment()
         {
@@ -33,16 +35,18 @@ namespace Lokad.Btw.Worker
             var activeFactories = new ActiveFactoriesProjection();
             handler.RegisterHandler(activeFactories);
 
+            var workerRegistry = new WorkerRegistryProjection();
+            handler.RegisterHandler(workerRegistry);
+
             return new ConsoleEnvironment
                 {
                     Events = store,
                     FactoryAppService = fas,
                     Handlers = ConsoleActions.Actions,
                     Blueprints = blueprints,
-                    ActiveFactories = activeFactories
+                    ActiveFactories = activeFactories,
+                    WorkerRegistry = workerRegistry
                 };
-
-
         }
     }
 
@@ -89,7 +93,14 @@ namespace Lokad.Btw.Worker
         {
             foreach (var handler in _handlers)
             {
-                ((dynamic) handler).When((dynamic) @event);
+                try
+                {
+                    ((dynamic) handler).When((dynamic) @event);
+                }
+                catch (RuntimeBinderException e)
+                {
+                    // binding failure. Ignore
+                }
             }
         }
         public void RegisterHandler(object projection)
@@ -126,6 +137,17 @@ namespace Lokad.Btw.Worker
         {
             Factories[e.Id].PartsInCargoBay -= e.InventoryShipments.Sum(s => s.Cargo.Sum(p => p.Quantity));
         }
+    }
+
+    public sealed class WorkerRegistryProjection
+    {
+        public List<Tuple<string,FactoryId>> List = new List<Tuple<string, FactoryId>>();
+  
+        public void When(EmployeeAssignedToFactory e)
+        {
+            List.Add(Tuple.Create(e.EmployeeName, e.Id));
+        }
+        
     }
 
     public sealed class InMemoryBlueprintLibrary : ICarBlueprintLibrary
