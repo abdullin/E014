@@ -32,12 +32,15 @@ namespace Lokad.Btw.Worker
                     Handlers = ConsoleActions.Actions,
                     Blueprints = blueprints
                 };
+
+
         }
     }
 
     public sealed class InMemoryStore : IEventStore
     {
         readonly ConcurrentDictionary<string, IList<IEvent>> _store = new ConcurrentDictionary<string, IList<IEvent>>();
+        readonly ConcurrentQueue<IEvent> _publisher = new ConcurrentQueue<IEvent>(); 
 
         static ILogger Log = LogManager.GetLoggerFor<InMemoryStore>();
         public EventStream LoadEventStream(string id)
@@ -53,11 +56,13 @@ namespace Lokad.Btw.Worker
 
         public void AppendEventsToStream(string id, long expectedVersion, ICollection<IEvent> events)
         {
+            _store.AddOrUpdate(id, events.ToList(), (s, list) => list.Concat(events).ToList());
+            
             foreach (var @event in events)
             {
                 Log.Info("{0}", @event);
+                _publisher.Enqueue(@event);
             }
-            _store.AddOrUpdate(id, events.ToList(), (s, list) => list.Concat(events).ToList());
         }
     }
 
