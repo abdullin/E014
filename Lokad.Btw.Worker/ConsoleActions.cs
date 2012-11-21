@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using E014;
 using E014.Contracts;
 
@@ -20,6 +21,7 @@ namespace Lokad.Btw.Worker
             Register(new HelpAction());
             Register(new ExitAction());
             Register(new StoryAction());
+            Register(new ListFactoriesAction());
         }
         static void Register(IShellAction cmd)
         {
@@ -151,6 +153,30 @@ namespace Lokad.Btw.Worker
             Environment.Exit(0);
         }
     }
+
+    public class ListFactoriesAction : IShellAction
+    {
+        public string Keyword { get { return "list"; } }
+        public string Usage { get { return Keyword; } }
+        public void Execute(ConsoleEnvironment env, string[] args)
+        {
+            var factories = env.ActiveFactories.Factories.ToList();
+            if (!factories.Any())
+            {
+                env.Log.Info("No factories opened yet");
+                return;
+            }
+
+            foreach (var pair in factories)
+            {
+                var info = pair.Value;
+                env.Log.Info("Factory {0} with {1} workers and {2} parts in cargo", pair.Key.Id, info.WorkerCount, info.PartsInCargoBay);
+            }
+        }
+    }
+
+    
+
 
     public class StoryAction : IShellAction
     {

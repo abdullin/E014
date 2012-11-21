@@ -16,6 +16,7 @@ namespace Lokad.Btw.Worker
         public IDictionary<string, IShellAction> Handlers;
         public InMemoryBlueprintLibrary Blueprints;
         public ILogger Log = LogManager.GetLoggerFor<ConsoleEnvironment>();
+        public ActiveFactoriesProjection ActiveFactories;
 
         public static ConsoleEnvironment BuildEnvironment()
         {
@@ -25,12 +26,20 @@ namespace Lokad.Btw.Worker
             var blueprints = new InMemoryBlueprintLibrary();
             blueprints.Register("model-t", new CarPart("wheel",4), new CarPart("engine",1), new CarPart("chassis",1));
             var fas = new FactoryApplicationService(store, blueprints);
+
+
+
+            // wire projections
+            var activeFactories = new ActiveFactoriesProjection();
+            handler.RegisterHandler(activeFactories);
+
             return new ConsoleEnvironment
                 {
                     Events = store,
                     FactoryAppService = fas,
                     Handlers = ConsoleActions.Actions,
-                    Blueprints = blueprints
+                    Blueprints = blueprints,
+                    ActiveFactories = activeFactories
                 };
 
 
@@ -40,7 +49,7 @@ namespace Lokad.Btw.Worker
     public sealed class InMemoryStore : IEventStore
     {
         readonly ConcurrentDictionary<string, IList<IEvent>> _store = new ConcurrentDictionary<string, IList<IEvent>>();
-        SynchronousEventHandler _handler;
+        readonly SynchronousEventHandler _handler;
 
         static ILogger Log = LogManager.GetLoggerFor<InMemoryStore>();
         public InMemoryStore(SynchronousEventHandler handler)
@@ -86,6 +95,36 @@ namespace Lokad.Btw.Worker
         public void RegisterHandler(object projection)
         {
             _handlers.Add(projection);
+        }
+    }
+
+
+    public sealed class ActiveFactoriesProjection
+    {
+        public IDictionary<FactoryId,FactoryInfo> Factories = new Dictionary<FactoryId, FactoryInfo>();
+
+        public sealed class FactoryInfo
+        {
+            public int WorkerCount;
+            public int PartsInCargoBay;
+        }
+
+
+        public void When(FactoryOpened e)
+        {
+            Factories[e.Id] = new FactoryInfo();
+        }
+        public void When(EmployeeAssignedToFactory e)
+        {
+            Factories[e.Id].WorkerCount += 1;
+        }
+        public void When(ShipmentReceivedInCargoBay e)
+        {
+            Factories[e.Id].PartsInCargoBay += e.Shipment.Cargo.Sum(p => p.Quantity);
+        }
+        public void When(ShipmentUnpackedInCargoBay e)
+        {
+            Factories[e.Id].PartsInCargoBay -= e.InventoryShipments.Sum(s => s.Cargo.Sum(p => p.Quantity));
         }
     }
 
