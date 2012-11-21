@@ -19,8 +19,8 @@ namespace Lokad.Btw.Worker
 
         public static ConsoleEnvironment BuildEnvironment()
         {
-            var store = new InMemoryStore();
-            
+            var handler = new SynchronousEventHandler();
+            var store = new InMemoryStore(handler);
 
             var blueprints = new InMemoryBlueprintLibrary();
             blueprints.Register("model-t", new CarPart("wheel",4), new CarPart("engine",1), new CarPart("chassis",1));
@@ -40,9 +40,14 @@ namespace Lokad.Btw.Worker
     public sealed class InMemoryStore : IEventStore
     {
         readonly ConcurrentDictionary<string, IList<IEvent>> _store = new ConcurrentDictionary<string, IList<IEvent>>();
-        readonly ConcurrentQueue<IEvent> _publisher = new ConcurrentQueue<IEvent>(); 
+        SynchronousEventHandler _handler;
 
         static ILogger Log = LogManager.GetLoggerFor<InMemoryStore>();
+        public InMemoryStore(SynchronousEventHandler handler)
+        {
+            _handler = handler;
+        }
+
         public EventStream LoadEventStream(string id)
         {
             var stream = _store.GetOrAdd(id, new IEvent[0]).ToList();
@@ -61,8 +66,26 @@ namespace Lokad.Btw.Worker
             foreach (var @event in events)
             {
                 Log.Info("{0}", @event);
-                _publisher.Enqueue(@event);
+
+                _handler.Handle(@event);
             }
+        }
+    }
+
+
+    public sealed class SynchronousEventHandler
+    {
+        readonly IList<object> _handlers = new List<object>(); 
+        public void Handle(IEvent @event)
+        {
+            foreach (var handler in _handlers)
+            {
+                ((dynamic) handler).When((dynamic) @event);
+            }
+        }
+        public void RegisterHandler(object projection)
+        {
+            _handlers.Add(projection);
         }
     }
 
