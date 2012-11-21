@@ -15,6 +15,5 @@ namespace E014.Projections
         {
             List.Add(Tuple.Create(e.EmployeeName, e.Id));
         }
-        
     }
 }

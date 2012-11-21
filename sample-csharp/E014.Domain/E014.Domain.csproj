@@ -52,6 +52,7 @@
     <Compile Include="Contracts\Messages.cs" />
     <Compile Include="Interfaces.cs" />
     <Compile Include="Projections\ActiveFactoriesProjection.cs" />
+    <Compile Include="Projections\InventoryProjection.cs" />
     <Compile Include="Projections\WorkerRegistryProjection.cs" />
   </ItemGroup>
   <ItemGroup>

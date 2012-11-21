@@ -20,6 +20,7 @@ namespace Lokad.Btw.Worker
         public ILogger Log = LogManager.GetLoggerFor<ConsoleEnvironment>();
         public ActiveFactoriesProjection ActiveFactories;
         public WorkerRegistryProjection WorkerRegistry;
+        public InventoryProjection Inventory;
 
         public static ConsoleEnvironment BuildEnvironment()
         {
@@ -39,6 +40,9 @@ namespace Lokad.Btw.Worker
             var workerRegistry = new WorkerRegistryProjection();
             handler.RegisterHandler(workerRegistry);
 
+            var inventory = new InventoryProjection();
+            handler.RegisterHandler(inventory);
+
             return new ConsoleEnvironment
                 {
                     Events = store,
@@ -46,7 +50,8 @@ namespace Lokad.Btw.Worker
                     Handlers = ConsoleActions.Actions,
                     Blueprints = blueprints,
                     ActiveFactories = activeFactories,
-                    WorkerRegistry = workerRegistry
+                    WorkerRegistry = workerRegistry,
+                    Inventory = inventory
                 };
         }
     }

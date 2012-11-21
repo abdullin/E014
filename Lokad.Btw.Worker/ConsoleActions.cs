@@ -23,6 +23,7 @@ namespace Lokad.Btw.Worker
             Register(new StoryAction());
             Register(new ListFactoriesAction());
             Register(new ListWorkersAction());
+            Register(new InventoryAction());
         }
         static void Register(IShellAction cmd)
         {
@@ -133,7 +134,7 @@ namespace Lokad.Btw.Worker
                 return;
             }
             env.Log.Info("Available commands");
-            foreach (var handler in env.Handlers)
+            foreach (var handler in env.Handlers.OrderBy(h => h.Key))
             {
                 env.Log.Info("  {0}", handler.Key.ToUpperInvariant());
                 if (!string.IsNullOrWhiteSpace(handler.Value.Usage))
@@ -142,6 +143,26 @@ namespace Lokad.Btw.Worker
                 }
             }
 
+        }
+    }
+
+    public class InventoryAction : IShellAction
+    {
+        public string Keyword { get { return "inventory"; } }
+        public string Usage { get { return Keyword; } }
+        public void Execute(ConsoleEnvironment env, string[] args)
+        {
+            var inv = env.Inventory.Parts;
+            if (!inv.Any())
+            {
+                env.Log.Info("No car parts are in inventory");
+                return;
+            }
+
+            foreach (var source in inv.OrderBy(i => i.Key).Where(i => i.Value > 0))
+            {
+                env.Log.Info("{0,20} - {1} pcs available", source.Key, source.Value);
+            }
         }
     }
 
